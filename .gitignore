@@ -11,6 +11,8 @@ output/*
 !output/.gitkeep
 ingestion/*
 !ingestion/.gitkeep
+test/
+config/config.toml
 
 # Status Bank System
 CLAUDE.md

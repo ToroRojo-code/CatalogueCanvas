@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}{{ collection.title }} · {{ site.title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+  <nav class="breadcrumb">
+    <a href="{{ site.base_url }}/">Catalog</a>
+    <span class="breadcrumb-sep">›</span>
+    <a href="{{ site.base_url }}/collections/">Collections</a>
+    <span class="breadcrumb-sep">›</span>
+    <span>{{ collection.title }}</span>
+  </nav>
+
+  <header class="collection-header">
+    <h1>{{ collection.title }}</h1>
+    {% if collection.description %}
+    <div class="desc">{{ collection.description | md }}</div>
+    {% endif %}
+  </header>
+
+  <div class="section-header">
+    <h2>Items</h2>
+    <span class="count">{{ items | length }}</span>
+  </div>
+
+  <div class="works-grid" id="works-grid">
+    {% for item in items %}
+    <a class="work-card" href="{{ site.base_url }}/items/{{ item.id }}/">
+      <div class="work-card-thumb">
+        {% if item.preview_url %}
+        <img src="{{ item.preview_url }}" alt="{{ item.title }}" loading="lazy">
+        {% else %}
+        <div class="no-preview">no preview</div>
+        {% endif %}
+      </div>
+      <div class="work-card-body">
+        <div class="work-card-title">{{ item.title }}</div>
+        {% if item.tags %}
+        <div class="work-card-tags">
+          {% for tag in item.tags[:3] %}<span class="tag">{{ tag }}</span>{% endfor %}
+        </div>
+        {% endif %}
+      </div>
+    </a>
+    {% else %}
+    <div class="empty-state">No items in this collection yet.</div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

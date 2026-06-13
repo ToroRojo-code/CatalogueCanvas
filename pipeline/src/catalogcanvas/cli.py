@@ -9,8 +9,9 @@ from rich.progress import BarColumn, Progress, SpinnerColumn, TextColumn, TimeEl
 from rich.table import Table
 
 from .config import BuildConfig, CatalogConfig, LLMConfig, PathsConfig, SiteConfig, load_config, save_config
-from .db import ensure_schema, get_connection
+from .db import ensure_schema, get_connection, get_db_stats
 from .ingest import ingest_zip
+from .site import build_site
 
 app = typer.Typer(help="CatalogCanvas — generic ingestion & site builder")
 console = Console()
@@ -143,3 +144,19 @@ def ingest(
 
     conn.close()
     console.print(f"\n[bold]done[/bold] — {ingested}/{len(zips)} ingested")
+
+
+@app.command()
+def build():
+    """Render the static catalog site into the output folder."""
+    conn, cfg = _get_conn()
+    stats = get_db_stats(conn)
+
+    build_site(conn, cfg, REPO_ROOT)
+    conn.close()
+
+    output_dir = REPO_ROOT / cfg.paths.output_dir
+    console.print(
+        f"[bold]done[/bold] — {stats['total_items']} items, "
+        f"{stats['total_collections']} collections → {output_dir.relative_to(REPO_ROOT)}/"
+    )

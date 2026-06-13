@@ -15,15 +15,59 @@ pipeline/                 uv project: catalogcanvas CLI (catalog init, ...)
 
 ## Setup
 
-From `pipeline/`, run the interactive configuration wizard:
+Install dependencies, then run the interactive configuration wizard:
 
 ```bash
-cd pipeline
-uv sync
-uv run catalog init
+uv sync --project pipeline
+uv run --project pipeline catalog init
 ```
 
 This asks for the catalog title, input/output folders, database path, optional backup folder, build settings, and LLM provider/model/prompt preferences, then writes `config/config.toml`. Re-run `catalog init` any time to update the configuration (it will ask before overwriting).
+
+## Ingestion
+
+Each item is a ZIP file dropped into `ingestion/` (or wherever `[paths] ingestion_dir` points). Run:
+
+```bash
+uv run --project pipeline catalog ingest [--file PATH] [--force]
+```
+
+- Without `--file`, all `*.zip` files in the ingestion folder are processed.
+- Each ZIP is assigned a unique item ID (`<random-word>-<3-digit-number>`, e.g. `quartz-482`), checked against the database to avoid collisions.
+- The ZIP's content hash is recorded; re-running `catalog ingest` skips ZIPs already ingested unless `--force` is passed.
+- One image inside the ZIP is chosen as the preview and converted to `preview.webp`, by priority **png > jpeg > tiff > svg**. If multiple images share the top priority type, the first one (by zip order) is used and a note is printed.
+- All other files (including any non-chosen images) are copied into `other/` alongside the preview; set `[ingest] compress_other_files = true` in `config/config.toml` to lz4-compress them.
+- A `metadata.json` or `metadata.toml` file inside the ZIP is parsed and stored as `raw_meta`.
+- Per-item overrides (title, tags, note, collection) can be set in `config/catalog.toml`, keyed by the ZIP's content hash or filename stem — see `config/catalog.toml.example`.
+
+Results are stored in the DuckDB database at `[paths] db_path` (`items` and `collections` tables), and per-item assets land in `output/items/<id>/`.
+
+## Building the site
+
+Once items are ingested, generate the static catalog site:
+
+```bash
+uv run --project pipeline catalog build
+```
+
+This renders Jinja2 templates from `templates/` into `[paths] output_dir` (default `output/`):
+
+- `index.html` — landing page with item grid, collection pills, and live search
+- `items/<id>/index.html` — per-item detail page (preview, tags, `note`, downloads for accessory files including any metadata file, related items)
+- `collections/index.html` and `collections/<id>/index.html` — collection listing and per-collection item grids
+- `table/index.html` and `table/data.csv` — sortable/filterable table view with CSV export
+- `data/search-index.json` — search index consumed by client-side search (`assets/js/search.js`)
+- `assets/` — copied from `templates/assets/` (CSS/JS, shared across builds)
+
+Re-running `catalog build` regenerates all of the above; per-item assets under `output/items/<id>/` produced by `catalog ingest` (previews, accessory files) are left untouched.
+
+To preview locally:
+
+```bash
+python3 -m http.server --directory output
+```
+
+To deploy, host the contents of `output/` on any static file host (GitHub Pages, S3, Netlify, etc.). If the site is served from a subpath (e.g. GitHub Pages project sites at `https://user.github.io/repo/`), set `[site] base_url = "/repo"` in `config/config.toml` (via `catalog init`) before building so internal links resolve correctly.
 
 ## LLM item descriptions
 

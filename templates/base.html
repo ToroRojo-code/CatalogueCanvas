@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{{ site.title }}{% endblock %}</title>
+  <meta name="description" content="{{ site.description }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ site.base_url }}/assets/css/style.css">
+</head>
+<body>
+  <nav>
+    <div class="nav-inner">
+      <a class="nav-logo" href="{{ site.base_url }}/">{{ site.title }}</a>
+      <div class="nav-search">
+        <input class="search-input" type="search" placeholder="Search items…" autocomplete="off">
+      </div>
+      <div class="nav-links">
+        {% if total_collections %}<a href="{{ site.base_url }}/collections/">Collections</a>{% endif %}
+        <a href="{{ site.base_url }}/table/">Table</a>
+        <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Toggle theme">☀️</button>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer>
+    <div class="container">
+      {{ total_items }} items · generated {{ now }}{% if site.author %} · {{ site.author }}{% endif %}
+    </div>
+  </footer>
+
+  <script>window.SITE_BASE_URL = "{{ site.base_url }}";</script>
+  <script src="{{ site.base_url }}/assets/js/search.js"></script>
+</body>
+</html>

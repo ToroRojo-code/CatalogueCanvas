@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}{{ item.title }} · {{ site.title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb">
+    <a href="{{ site.base_url }}/">Catalog</a>
+    <span class="breadcrumb-sep">›</span>
+    {% if item.collection_id %}
+    <a href="{{ site.base_url }}/collections/{{ item.collection_id }}/">{{ item.collection_id | replace('-', ' ') | title }}</a>
+    <span class="breadcrumb-sep">›</span>
+    {% endif %}
+    <span>{{ item.title }}</span>
+  </nav>
+
+  <!-- Main layout -->
+  <div class="work-hero">
+    <!-- Image -->
+    <div class="work-image">
+      {% if item.preview_url %}
+      <img src="{{ item.preview_url }}" alt="{{ item.title }}" class="work-preview-img" style="cursor:zoom-in;" onclick="openLightbox(this.src)">
+      {% else %}
+      <div style="aspect-ratio:1414/1000; display:flex; align-items:center; justify-content:center; color:var(--text-ter); font-size:0.8rem;">no preview available</div>
+      {% endif %}
+    </div>
+
+    <!-- Metadata -->
+    <aside class="work-meta">
+      <h1>{{ item.title }}</h1>
+
+      <!-- Downloads -->
+      {% if item.download_urls %}
+      <div class="download-links">
+        {% for dl in item.download_urls %}
+        <a class="btn-download" href="{{ dl.url }}" download>↓ {{ dl.name }}</a>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Tags -->
+      {% if item.tags %}
+      <div class="work-tags">
+        {% for tag in item.tags %}<span class="tag">{{ tag }}</span>{% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Metadata fields -->
+      {% if item.collection_id or item.imported_at %}
+      <dl class="params">
+        {% if item.collection_id %}
+        <div><dt>Collection</dt><dd><a href="{{ site.base_url }}/collections/{{ item.collection_id }}/">{{ item.collection_id }}</a></dd></div>
+        {% endif %}
+        {% if item.imported_at %}
+        <div><dt>Imported</dt><dd>{{ item.imported_at }}</dd></div>
+        {% endif %}
+      </dl>
+      {% endif %}
+
+      <!-- Note -->
+      {% if item.note %}
+      <div class="user-note">
+        {{ item.note | md }}
+      </div>
+      {% endif %}
+    </aside>
+  </div>
+
+  <!-- Siblings in same collection -->
+  {% if siblings %}
+  <section class="siblings-section">
+    <h2>More in this collection</h2>
+    <div class="works-grid">
+      {% for s in siblings %}
+      <a class="work-card" href="{{ site.base_url }}/items/{{ s.id }}/">
+        <div class="work-card-thumb">
+          {% if s.preview_url %}
+          <img src="{{ s.preview_url }}" alt="{{ s.title }}" loading="lazy">
+          {% else %}
+          <div class="no-preview">no preview</div>
+          {% endif %}
+        </div>
+        <div class="work-card-body">
+          <div class="work-card-title">{{ s.title }}</div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+</div>
+
+<!-- Lightbox -->
+<div id="lightbox" class="lightbox-hidden" onclick="closeLightbox()">
+  <img id="lightbox-img" src="" alt="">
+</div>
+
+<script>
+function openLightbox(src) {
+  var lb = document.getElementById('lightbox');
+  document.getElementById('lightbox-img').src = src;
+  lb.classList.remove('lightbox-hidden');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.add('lightbox-hidden');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeLightbox(); });
+</script>
+{% endblock %}
