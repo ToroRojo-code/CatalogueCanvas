@@ -1,0 +1,411 @@
+/* ── Design tokens (ported from templates/assets/css/style.css) ── */
+:root {
+    --bg: #050507;
+    --surface: #101010;
+    --border: #3d3a39;
+    --text: #f2f2f2;
+    --text-sec: #b8b3b0;
+    --text-ter: #8b949e;
+    --accent: #00d992;
+    --accent-dim: #00a06a;
+    --font-head: system-ui, -apple-system, sans-serif;
+    --font-body: "Inter", system-ui, sans-serif;
+    --font-mono: "SFMono-Regular", "Cascadia Code", monospace;
+    --radius-card: 8px;
+    --radius-pill: 9999px;
+    --max-w: 1200px;
+    --transition: color 0.2s, background 0.2s, border-color 0.2s;
+}
+
+* {
+    box-sizing: border-box;
+}
+html, body, #root {
+    margin: 0;
+    padding: 0;
+}
+html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+}
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    min-height: 100vh;
+}
+#root {
+    min-height: 100vh;
+    text-align: left;
+}
+a {
+    color: inherit;
+    text-decoration: none;
+}
+img {
+    display: block;
+    max-width: 100%;
+}
+button, input, textarea, select {
+    font-family: inherit;
+}
+
+.container {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+/* ── Nav ── */
+nav.topnav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 0;
+}
+.nav-inner {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: 0 24px;
+}
+.nav-logo {
+    font-family: var(--font-head);
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--accent);
+    flex-shrink: 0;
+}
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-left: auto;
+}
+.nav-links a, .nav-links button {
+    color: var(--text-sec);
+    font-size: 0.875rem;
+    transition: color 0.15s;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+.nav-links a:hover, .nav-links button:hover {
+    color: var(--accent);
+}
+
+/* ── Buttons / forms ── */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    border: 1px solid var(--accent);
+    border-radius: var(--radius-pill);
+    color: var(--accent);
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: 10px 20px;
+    text-align: center;
+    transition: var(--transition);
+    text-decoration: none;
+    justify-content: center;
+}
+.btn:hover {
+    background: var(--accent);
+    color: var(--bg);
+}
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.btn-danger {
+    border-color: #ff5d5d;
+    color: #ff5d5d;
+}
+.btn-danger:hover {
+    background: #ff5d5d;
+    color: var(--bg);
+}
+
+input, textarea, select {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    color: var(--text);
+    font-size: 0.9rem;
+    padding: 10px 14px;
+    outline: none;
+    transition: var(--transition);
+}
+input:focus, textarea:focus, select:focus {
+    border-color: var(--accent);
+}
+label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-ter);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+}
+.field {
+    margin-bottom: 16px;
+}
+
+/* ── Items grid ── */
+.works-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+    padding: 24px 0;
+}
+.work-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.15s;
+    cursor: pointer;
+}
+.work-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+}
+.work-card-thumb {
+    aspect-ratio: 1414 / 1000;
+    background: var(--bg);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.work-card-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+.work-card-thumb .no-preview {
+    color: var(--text-ter);
+    font-size: 0.75rem;
+    font-family: var(--font-mono);
+}
+.work-card-body {
+    padding: 14px 16px;
+}
+.work-card-title {
+    font-family: var(--font-head);
+    font-size: 0.95rem;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.work-card-meta {
+    color: var(--text-ter);
+    font-size: 0.75rem;
+    font-family: var(--font-mono);
+    margin-top: 4px;
+}
+.work-card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 8px;
+}
+.tag {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    color: var(--text-ter);
+    font-size: 0.7rem;
+    padding: 2px 8px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 80px 0;
+    color: var(--text-ter);
+    font-size: 0.9rem;
+}
+
+/* ── Edit page layout ── */
+.edit-hero {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 32px;
+    padding: 24px 0 48px;
+    align-items: start;
+}
+@media (max-width: 768px) {
+    .edit-hero {
+        grid-template-columns: 1fr;
+    }
+}
+.edit-image {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+}
+.edit-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+.edit-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.download-links {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.image-previews {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+}
+.file-thumb {
+    width: 96px;
+    height: 96px;
+    object-fit: cover;
+    border-radius: var(--radius-card);
+    border: 1px solid var(--border);
+}
+
+/* ── Login ── */
+.login-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+.login-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    padding: 32px;
+    width: 320px;
+}
+.login-card h1 {
+    font-family: var(--font-head);
+    font-size: 1.4rem;
+    margin-bottom: 20px;
+}
+.error-text {
+    color: #ff5d5d;
+    font-size: 0.85rem;
+    margin-top: 8px;
+}
+
+/* ── Upload dropzone ── */
+.dropzone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius-card);
+    padding: 32px;
+    text-align: center;
+    color: var(--text-ter);
+    cursor: pointer;
+    transition: var(--transition);
+    margin-bottom: 8px;
+}
+.dropzone.dragover, .dropzone:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+/* ── List rows ── */
+.list-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    margin-bottom: 8px;
+    gap: 12px;
+}
+.list-row-title {
+    font-weight: 500;
+}
+.list-row-meta {
+    color: var(--text-ter);
+    font-size: 0.8rem;
+}
+.row-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.page-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 32px 0 16px;
+    flex-wrap: wrap;
+}
+.page-header h1 {
+    font-family: var(--font-head);
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.checkbox-row input {
+    width: auto;
+}
+
+.copy-link {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    padding: 8px 12px;
+    word-break: break-all;
+}
+
+.item-checklist {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+    margin: 16px 0;
+}
+.item-checklist label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    text-transform: none;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+.item-checklist img {
+    border-radius: var(--radius-card);
+    border: 1px solid var(--border);
+    aspect-ratio: 1414/1000;
+    object-fit: contain;
+    background: var(--bg);
+}
+.item-checklist .checkbox-row {
+    gap: 6px;
+}

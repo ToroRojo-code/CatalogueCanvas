@@ -1,0 +1,17 @@
+# Prompt template for LLM-based item descriptions.
+#
+# Placeholders {item_type}, {summary_focus}, {bullet_count}, {bullet_max_words}
+# are substituted before the prompt is sent.
+
+[output_schema]
+descriptions = "array of exactly {bullet_count} bullet points, each under {bullet_max_words} words"
+summary = "a couple of sentences covering {summary_focus}"
+
+[instructions]
+task = "Analyze the provided {item_type} and return a JSON object matching the output_schema above."
+constraints = [
+    "Provide exactly {bullet_count} bullet points in the descriptions array.",
+    "Each bullet point must be under {bullet_max_words} words.",
+    "The summary must be a couple of sentences covering {summary_focus}.",
+    "Output only the raw JSON code without any conversational filler or markdown code blocks.",
+]

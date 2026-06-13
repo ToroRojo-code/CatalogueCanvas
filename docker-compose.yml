@@ -1,0 +1,15 @@
+services:
+  catalogcanvas:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      CC_ADMIN_PASSWORD: ${CC_ADMIN_PASSWORD:-changeme}
+      CC_SECRET_KEY: ${CC_SECRET_KEY:-change-this-secret-key}
+      CC_SITE_TITLE: ${CC_SITE_TITLE:-CatalogCanvas}
+      CC_SITE_AUTHOR: ${CC_SITE_AUTHOR:-}
+    volumes:
+      - cc-data:/data
+
+volumes:
+  cc-data:
