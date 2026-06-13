@@ -1,7 +1,5 @@
-- LLM request failed: [Errno 111] Connection refused
-- Create a setting page, for llm, export and backup data (db and config)
-- Page for user setting. Input is by a button in the top bar that open a special page just for zip upload . these can be selected manually or drag-drop
-- each page for a piece, the link to teh other files can be opened if those are images or text files, anything else are downloaded. Add option to download all as zip
+https://icons.getbootstrap.com/
+
 
 
 ////// Ignore and do not READ bellow this line ///////
@@ -32,3 +30,8 @@ make a plan (take no action) to port this repository from a static website creat
 - The catalog must use a internal ID that is assigned to each work at ingestion. A random word ( sort -R /usr/share/dict/words | head -n 1)  dash 3 random digits. These are checked with the db that are not being used to avoid collisions
 
 - prove that the best way to ingest data is a collection of zip files. Each zip file will be consider a work with a main image from svg, png, jpeg, tiff, etc that will be converted to webp, while the other files can be saved compressed (or not, this is an option) Thie can be code files, json, etc. This make the template more flexible to show the available files in thems of images, code (py, r, toml, json, p5...etc), text (txt md), other
+
+- LLM request failed: [Errno 111] Connection refused
+- Create a setting page, for llm, export and backup data (db and config)
+- Page for user setting. Input is by a button in the top bar that open a special page just for zip upload . these can be selected manually or drag-drop
+- each page for a piece, the link to teh other files can be opened if those are images or text files, anything else are downloaded. Add option to download all as zip
