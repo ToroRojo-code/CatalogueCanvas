@@ -18,3 +18,7 @@ config/config.toml
 CLAUDE.md
 CLAUDE-*.md
 .claude/
+
+# design notes for redesign work
+design/
+potential names.md

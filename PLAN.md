@@ -1,5 +1,3 @@
-https://icons.getbootstrap.com/
-
 
 
 ////// Ignore and do not READ bellow this line ///////
