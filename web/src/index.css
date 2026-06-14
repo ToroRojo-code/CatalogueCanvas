@@ -289,7 +289,7 @@ button, input, textarea, select {
 
 /* thumbnail placeholder */
 .cc-thumb {
-  position: relative; aspect-ratio: 4 / 3; width: 100%;
+  position: relative; width: 100%; aspect-ratio: 4 / 3;
   background:
     repeating-linear-gradient(45deg,
       color-mix(in oklab, var(--text) 4%, var(--surface)) 0 9px,
@@ -299,7 +299,8 @@ button, input, textarea, select {
   display: grid; place-items: center; overflow: hidden;
   border-radius: var(--radius-thumb) var(--radius-thumb) 0 0;
 }
-.cc-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.cc-thumb:has(img) { aspect-ratio: auto; background: none; }
+.cc-thumb img { width: 100%; height: auto; object-fit: contain; }
 .cc-thumb--lg {
   aspect-ratio: auto; height: auto; min-height: 200px; max-height: 70vh;
   background: var(--surface);
@@ -440,6 +441,22 @@ button, input, textarea, select {
 }
 .cc-notes__rendered pre code { background: none; padding: 0; }
 
+/* ---- ItemEdit prev/next nav -------------------------------------------- */
+.cc-item-nav {
+  position: fixed; top: 50%; transform: translateY(-50%);
+  font-size: 48px; line-height: 1; font-weight: 700;
+  color: var(--text-ter); text-decoration: none;
+  padding: var(--space-4) var(--space-3); border-radius: var(--radius-thumb);
+  z-index: 30; transition: color 0.15s, background 0.15s;
+}
+.cc-item-nav:hover { color: var(--accent); background: var(--accent-wash); }
+.cc-item-nav--prev { left: var(--space-3); }
+.cc-item-nav--next { right: var(--space-3); }
+.cc-app[data-nav="side"] .cc-item-nav--prev { left: calc(232px + var(--space-3)); }
+@media (max-width: 900px) {
+  .cc-item-nav { display: none; }
+}
+
 /* ---- ItemEdit two-column ---------------------------------------------- */
 .cc-itemedit { display: grid; grid-template-columns: minmax(0,1fr) 380px; gap: var(--space-6); align-items: start; }
 .cc-itemedit__media { position: sticky; top: 84px; }
@@ -452,7 +469,7 @@ button, input, textarea, select {
     var(--surface-2);
   display: grid; place-items: center; text-decoration: none; overflow: hidden;
 }
-.cc-thumbrow a img { width: 100%; height: 100%; object-fit: cover; }
+.cc-thumbrow a img { width: 100%; height: 100%; object-fit: contain; }
 .cc-thumbrow a span { font-family: var(--font-mono); font-size: 9px; color: var(--text-ter); }
 .cc-files { display: flex; flex-wrap: wrap; gap: 8px; }
 

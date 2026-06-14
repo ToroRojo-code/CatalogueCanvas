@@ -42,7 +42,8 @@
 .cc-deck__indexgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap: clamp(20px,3vw,40px); }
 .cc-deck__idxitem { text-decoration: none; color: inherit; }
 .cc-deck__idxnum { font-family: var(--font-mono); font-size: 12px; color: var(--text-ter); }
-.cc-deck__idxitem .cc-thumb { margin: 8px 0; }
+.cc-deck__idxitem .cc-thumb { margin: 8px 0; aspect-ratio: auto; height: auto; background: none; }
+.cc-deck__idxitem .cc-thumb img { width: 100%; height: auto; object-fit: contain; }
 .cc-deck__idxtitle { font-family: var(--font-head); font-weight: var(--head-weight); font-size: 16px; letter-spacing: var(--head-tracking); }
 
 /* art plate */
