@@ -61,6 +61,10 @@ def get_connection(db_path: Path) -> sqlite3.Connection:
 
 def ensure_schema(conn: sqlite3.Connection) -> None:
     conn.executescript(SCHEMA_SQL)
+    existing_cols = {row["name"] for row in conn.execute("PRAGMA table_info(items)")}
+    for col in ("width", "height"):
+        if col not in existing_cols:
+            conn.execute(f"ALTER TABLE items ADD COLUMN {col} INTEGER")
     conn.commit()
 
 

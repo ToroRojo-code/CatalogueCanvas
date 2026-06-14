@@ -13,6 +13,8 @@ export interface Item {
   raw_meta: Record<string, unknown>
   ingested_at: string
   imported_at: string | null
+  width: number | null
+  height: number | null
 }
 
 export interface Collection {
@@ -178,3 +180,35 @@ export const updateSettings = (fields: Partial<Pick<AppSettings, 'llm_api_url' |
   request<AppSettings>('/api/settings', { method: 'PUT', body: JSON.stringify(fields) })
 
 export const itemArchiveUrl = (id: string) => `/api/items/${id}/archive`
+
+// --- bulk item actions ---
+export const bulkClearNotes = (item_ids: string[]) =>
+  request<{ updated: string[]; missing: string[] }>('/api/items/bulk/clear-notes', { method: 'POST', body: JSON.stringify({ item_ids }) })
+
+export const bulkAddTags = (item_ids: string[], tags: string[]) =>
+  request<{ updated: string[]; missing: string[] }>('/api/items/bulk/tags', { method: 'POST', body: JSON.stringify({ item_ids, tags }) })
+
+export const updatePortfolioItems = (p_id: string, item_ids: string[], action: 'add' | 'remove') =>
+  request<Portfolio>(`/api/portfolios/${p_id}/items`, { method: 'POST', body: JSON.stringify({ item_ids, action }) })
+
+export const downloadBulkArchive = async (item_ids: string[]) => {
+  const res = await fetch('/api/items/archive', {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ item_ids }),
+  })
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}))
+    throw new ApiError(res.status, body.detail || res.statusText)
+  }
+  const blob = await res.blob()
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `items_bulk_${Date.now()}.zip`
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  URL.revokeObjectURL(url)
+}

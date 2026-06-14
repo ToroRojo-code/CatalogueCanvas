@@ -1,6 +1,7 @@
 import { Link, NavLink } from 'react-router-dom'
 import { useAuth } from '../api/auth'
 import { useAppearance } from '../api/appearance'
+import { useSelection } from '../api/selection'
 
 function NavItem({ to, end, label }: { to: string; end?: boolean; label: string }) {
   return (
@@ -18,6 +19,7 @@ function NavItem({ to, end, label }: { to: string; end?: boolean; label: string 
 export function Nav() {
   const { authenticated, logout } = useAuth()
   const { appearance, setAppearance } = useAppearance()
+  const { batchMode, toggleBatchMode } = useSelection()
   const isDark = appearance.theme === 'dark'
 
   return (
@@ -36,6 +38,14 @@ export function Nav() {
       <div className="cc-nav-spacer" />
       {authenticated && (
         <div className="cc-nav__foot">
+          <button
+            className="cc-mode-btn"
+            type="button"
+            data-active={batchMode || undefined}
+            onClick={toggleBatchMode}
+          >
+            Batch edit
+          </button>
           <button
             className="cc-mode-btn"
             type="button"

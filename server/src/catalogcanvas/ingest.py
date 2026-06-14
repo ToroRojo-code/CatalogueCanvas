@@ -9,6 +9,8 @@ from io import BytesIO
 from pathlib import Path
 from typing import Optional
 
+from PIL import Image
+
 from .convert import to_webp
 from .db import hash_exists, upsert_item, get_item
 from .ids import generate_item_id
@@ -89,6 +91,8 @@ def ingest_zip_bytes(
 
         preview_path: Optional[str] = None
         preview_mime: Optional[str] = None
+        preview_width: Optional[int] = None
+        preview_height: Optional[int] = None
         other_files: list[str] = []
         raw_meta: dict = {}
 
@@ -101,6 +105,8 @@ def ingest_zip_bytes(
                 out_file = items_dir / "preview.webp"
                 to_webp(member_data, preview_mime, out_file, scale=image_scale)
                 preview_path = str(out_file.relative_to(storage_dir))
+                with Image.open(out_file) as img:
+                    preview_width, preview_height = img.size
                 if preview_mime == "image/svg+xml":
                     other_dir.mkdir(parents=True, exist_ok=True)
                     svg_file = other_dir / base_name
@@ -130,6 +136,8 @@ def ingest_zip_bytes(
         "note": "",
         "mime_type": preview_mime,
         "preview_path": preview_path,
+        "width": preview_width,
+        "height": preview_height,
         "other_files": other_files,
         "tags": [],
         "collection_id": None,

@@ -83,6 +83,7 @@ export function PortfolioEdit() {
           <div className="cc-field">
             <label className="cc-label">Share link</label>
             <div className="cc-sharebox">{shareUrl}</div>
+            <a className="cc-btn" href={`/p/${portfolio.slug}`} target="_blank" rel="noreferrer">Preview deck</a>
           </div>
         )}
       </div>

@@ -112,6 +112,29 @@ def update_portfolio(p_id: str, body: PortfolioUpdate, conn: sqlite3.Connection 
     return _enrich_portfolio(get_portfolio(conn, p_id))
 
 
+class PortfolioItemsUpdate(BaseModel):
+    item_ids: list[str]
+    action: str  # "add" | "remove"
+
+
+@router.post("/api/portfolios/{p_id}/items")
+def update_portfolio_items(p_id: str, body: PortfolioItemsUpdate, conn: sqlite3.Connection = Depends(get_db), _: None = Depends(require_admin)):
+    existing = get_portfolio(conn, p_id)
+    if not existing:
+        raise HTTPException(status_code=404, detail="portfolio not found")
+    if body.action not in ("add", "remove"):
+        raise HTTPException(status_code=400, detail="action must be 'add' or 'remove'")
+
+    current = _json_field(existing["item_ids"])
+    if body.action == "add":
+        new_ids = current + [i for i in body.item_ids if i not in current]
+    else:
+        new_ids = [i for i in current if i not in body.item_ids]
+
+    upsert_portfolio(conn, {**existing, "item_ids": new_ids})
+    return _enrich_portfolio(get_portfolio(conn, p_id))
+
+
 @router.delete("/api/portfolios/{p_id}")
 def delete_portfolio_endpoint(p_id: str, conn: sqlite3.Connection = Depends(get_db), _: None = Depends(require_admin)):
     if not get_portfolio(conn, p_id):

@@ -26,6 +26,21 @@ export function ItemEdit() {
     api.listItems().then((items) => setItemIds(items.map((i) => i.id)))
   }, [])
 
+  const currentIndex = item ? itemIds.indexOf(item.id) : -1
+  const prevId = currentIndex > 0 ? itemIds[currentIndex - 1] : null
+  const nextId = currentIndex >= 0 && currentIndex < itemIds.length - 1 ? itemIds[currentIndex + 1] : null
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return
+      if (e.key === 'ArrowLeft' && prevId) navigate(`/items/${prevId}`)
+      else if (e.key === 'ArrowRight' && nextId) navigate(`/items/${nextId}`)
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [prevId, nextId, navigate])
+
   if (!item) return <div className="container"><div className="cc-empty"><p className="cc-empty__title">Loading...</p></div></div>
 
   const applyDescription = async () => {
@@ -41,10 +56,6 @@ export function ItemEdit() {
     await api.deleteItem(item.id)
     navigate('/')
   }
-
-  const currentIndex = itemIds.indexOf(item.id)
-  const prevId = currentIndex > 0 ? itemIds[currentIndex - 1] : null
-  const nextId = currentIndex >= 0 && currentIndex < itemIds.length - 1 ? itemIds[currentIndex + 1] : null
 
   return (
     <div className="container">

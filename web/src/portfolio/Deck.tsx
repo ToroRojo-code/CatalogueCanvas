@@ -23,8 +23,17 @@ export function Deck() {
   const items = portfolio.items
   const total = items.length
 
+  const INDEX_PER_PAGE = 8
+  const indexPages: typeof items[] = []
+  for (let i = 0; i < items.length; i += INDEX_PER_PAGE) {
+    indexPages.push(items.slice(i, i + INDEX_PER_PAGE))
+  }
+
   return (
     <div className="cc-deck">
+      <button className="cc-btn cc-deck__printbtn no-print" onClick={() => window.print()} type="button">
+        Print / Export PDF
+      </button>
       <section className="cc-deck__sec cc-deck__cover">
         <p className="cc-deck__kicker">Portfolio · {total} works</p>
         <h1 className="cc-deck__title">{portfolio.title}</h1>
@@ -35,46 +44,51 @@ export function Deck() {
         </div>
       </section>
 
-      <section className="cc-deck__sec">
-        <div className="cc-deck__indexhead">
-          <h2>Works</h2>
-          <span className="cc-mono">{portfolio.slug}</span>
-        </div>
-        <div className="cc-deck__indexgrid">
-          {items.map((item, i) => (
-            <div className="cc-deck__idxitem" key={item.id}>
-              <span className="cc-deck__idxnum">{String(i + 1).padStart(2, '0')}</span>
-              <div className="cc-thumb">
-                {item.preview_url
-                  ? <img src={item.preview_url} alt={item.title} />
-                  : <span className="cc-thumb__label">no preview</span>}
-              </div>
-              <div className="cc-deck__idxtitle">{item.title}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {items.map((item, i) => (
-        <section className="cc-deck__sec cc-deck__art" key={item.id}>
-          <div className="cc-deck__plate">
-            {item.preview_url
-              ? <img src={item.preview_url} alt={item.title} />
-              : <span>no preview</span>}
+      {indexPages.map((page, pageIndex) => (
+        <section className="cc-deck__sec cc-deck__index" key={`index-${pageIndex}`}>
+          <div className="cc-deck__indexhead">
+            <h2>{pageIndex === 0 ? 'Works' : 'Works (cont.)'}</h2>
+            <span className="cc-mono">{portfolio.slug}</span>
           </div>
-          <div className="cc-deck__caption">
-            <p className="cc-deck__kicker">Work {String(i + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}</p>
-            <h3>{item.title}</h3>
-            <span className="cc-mono">{item.id}</span>
-            {item.note && <p>{item.note}</p>}
-            {item.tags.length > 0 && (
-              <div className="cc-deck__tags">
-                {item.tags.map((tag) => <span className="cc-tag" key={tag}>{tag}</span>)}
+          <div className="cc-deck__indexgrid">
+            {page.map((item, i) => (
+              <div className="cc-deck__idxitem" key={item.id}>
+                <span className="cc-deck__idxnum">{String(pageIndex * INDEX_PER_PAGE + i + 1).padStart(2, '0')}</span>
+                <div className="cc-thumb">
+                  {item.preview_url
+                    ? <img src={item.preview_url} alt={item.title} />
+                    : <span className="cc-thumb__label">no preview</span>}
+                </div>
+                <div className="cc-deck__idxtitle">{item.title}</div>
               </div>
-            )}
+            ))}
           </div>
         </section>
       ))}
+
+      {items.map((item, i) => {
+        const isWide = !!(item.width && item.height && item.width > item.height)
+        return (
+          <section className={`cc-deck__sec cc-deck__art ${i % 2 === 1 ? 'cc-deck__art--rev' : ''} ${isWide ? 'cc-deck__art--wide' : ''}`} key={item.id}>
+            <div className="cc-deck__plate">
+              {item.preview_url
+                ? <img src={item.preview_url} alt={item.title} />
+                : <span>no preview</span>}
+            </div>
+            <div className="cc-deck__caption">
+              <p className="cc-deck__kicker">Work {String(i + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}</p>
+              <h3>{item.title}</h3>
+              <span className="cc-mono">{item.id}</span>
+              {item.note && <p>{item.note}</p>}
+              {item.tags.length > 0 && (
+                <div className="cc-deck__tags">
+                  {item.tags.map((tag) => <span className="cc-tag" key={tag}>{tag}</span>)}
+                </div>
+              )}
+            </div>
+          </section>
+        )
+      })}
 
       <section className="cc-deck__sec cc-deck__colo">
         <div>
