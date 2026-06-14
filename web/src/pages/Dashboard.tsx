@@ -21,18 +21,27 @@ export function Dashboard() {
 
   return (
     <div className="container">
-      <div className="page-header">
-        <h1>Items ({items.length})</h1>
-      </div>
-      <div className="field" style={{ marginTop: 16 }}>
-        <input placeholder="Search items..." value={query} onChange={(e) => setQuery(e.target.value)} />
+      <div className="cc-page-header">
+        <div>
+          <p className="cc-kicker">Catalog</p>
+          <h1 className="cc-h1">Items<span className="cc-count">({items.length})</span></h1>
+        </div>
+        <div className="cc-search">
+          <span className="cc-search__icon" />
+          <input className="cc-input" placeholder="Search items..." value={query} onChange={(e) => setQuery(e.target.value)} />
+        </div>
       </div>
       {loading ? (
-        <div className="empty-state">Loading...</div>
+        <div className="cc-empty">
+          <p className="cc-empty__title">Loading...</p>
+        </div>
       ) : filtered.length === 0 ? (
-        <div className="empty-state">No items yet. Upload a ZIP to get started.</div>
+        <div className="cc-empty">
+          <p className="cc-empty__title">No items yet</p>
+          <p className="cc-empty__sub">Add items from the Upload page.</p>
+        </div>
       ) : (
-        <div className="works-grid">
+        <div className="cc-grid">
           {filtered.map((item) => <ItemCard key={item.id} item={item} />)}
         </div>
       )}

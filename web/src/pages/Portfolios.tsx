@@ -25,29 +25,42 @@ export function Portfolios() {
 
   return (
     <div className="container">
-      <div className="page-header"><h1>Portfolios</h1></div>
-      <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-        <input placeholder="New portfolio title" value={title} onChange={(e) => setTitle(e.target.value)} />
-        <button className="btn" onClick={create}>Create</button>
+      <div className="cc-page-header">
+        <div>
+          <p className="cc-kicker">Share</p>
+          <h1 className="cc-h1">Portfolios<span className="cc-count">({portfolios.length})</span></h1>
+        </div>
+      </div>
+      <div className="cc-createbar">
+        <input className="cc-input" placeholder="New portfolio title" value={title} onChange={(e) => setTitle(e.target.value)} />
+        <button className="cc-btn cc-btn--primary" onClick={create}>Create</button>
       </div>
       {portfolios.length === 0 ? (
-        <div className="empty-state">No portfolios yet.</div>
+        <div className="cc-empty">
+          <p className="cc-empty__title">No portfolios yet</p>
+        </div>
       ) : (
-        portfolios.map((p) => (
-          <div className="list-row" key={p.id}>
-            <div>
-              <div className="list-row-title">{p.title}</div>
-              <div className="list-row-meta">
-                /p/{p.slug} — {p.is_public ? 'public' : 'private'} — {p.item_ids.length} items
+        <div className="cc-list">
+          {portfolios.map((p) => (
+            <div className="cc-row" key={p.id}>
+              <div className="cc-row__main">
+                <h3 className="cc-row__title">{p.title}</h3>
+                <div className="cc-row__meta">
+                  <span className="cc-mono">/p/{p.slug}</span>
+                  <span className="cc-dot" />
+                  <span className={`cc-badge${p.is_public ? ' cc-badge--public' : ''}`}>{p.is_public ? 'Public' : 'Private'}</span>
+                  <span className="cc-dot" />
+                  <span>{p.item_ids.length} items</span>
+                </div>
+              </div>
+              <div className="cc-row__actions">
+                {p.is_public && <a className="cc-btn cc-btn--sm" href={`/p/${p.slug}`} target="_blank" rel="noreferrer">View</a>}
+                <Link className="cc-btn cc-btn--sm" to={`/portfolios/${p.id}`}>Edit</Link>
+                <button className="cc-btn cc-btn--danger cc-btn--sm" onClick={() => remove(p.id)}>Delete</button>
               </div>
             </div>
-            <div className="row-actions">
-              {p.is_public && <a className="btn" href={`/p/${p.slug}`} target="_blank" rel="noreferrer">View</a>}
-              <Link className="btn" to={`/portfolios/${p.id}`}>Edit</Link>
-              <button className="btn btn-danger" onClick={() => remove(p.id)}>Delete</button>
-            </div>
-          </div>
-        ))
+          ))}
+        </div>
       )}
     </div>
   )

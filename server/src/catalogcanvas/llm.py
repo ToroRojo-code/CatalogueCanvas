@@ -100,8 +100,12 @@ def describe(
     if content.startswith("```"):
         content = "\n".join(line for line in content.splitlines() if not line.startswith("```"))
 
+    start = content.find("{")
+    if start == -1:
+        raise LLMError("LLM returned invalid JSON: no JSON object found")
+
     try:
-        inner = json.loads(content)
+        inner, _ = json.JSONDecoder().raw_decode(content, start)
     except json.JSONDecodeError as exc:
         raise LLMError(f"LLM returned invalid JSON: {exc}") from exc
 

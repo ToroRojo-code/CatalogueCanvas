@@ -3,21 +3,21 @@ import type { Item } from '../api/client'
 
 export function ItemCard({ item }: { item: Item }) {
   return (
-    <Link to={`/items/${item.id}`} className="work-card">
-      <div className="work-card-thumb">
+    <Link to={`/items/${item.id}`} className="cc-card">
+      <div className="cc-thumb">
         {item.preview_url ? (
           <img src={item.preview_url} alt={item.title} loading="lazy" />
         ) : (
-          <span className="no-preview">no preview</span>
+          <span className="cc-thumb__label">no preview</span>
         )}
       </div>
-      <div className="work-card-body">
-        <div className="work-card-title">{item.title}</div>
-        <div className="work-card-meta">{item.id}</div>
+      <div className="cc-card__body">
+        <h3 className="cc-card__title">{item.title}</h3>
+        <div className="cc-card__id">{item.id}</div>
         {item.tags.length > 0 && (
-          <div className="work-card-tags">
+          <div className="cc-card__tags">
             {item.tags.slice(0, 3).map((t) => (
-              <span className="tag" key={t}>{t}</span>
+              <span className="cc-tag" key={t}>{t}</span>
             ))}
           </div>
         )}

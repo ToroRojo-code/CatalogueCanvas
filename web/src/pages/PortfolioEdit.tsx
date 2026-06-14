@@ -16,7 +16,7 @@ export function PortfolioEdit() {
     api.listItems().then(setItems)
   }, [id])
 
-  if (!portfolio) return <div className="container empty-state">Loading...</div>
+  if (!portfolio) return <div className="container"><div className="cc-empty"><p className="cc-empty__title">Loading...</p></div></div>
 
   const toggleItem = (itemId: string) => {
     const item_ids = portfolio.item_ids.includes(itemId)
@@ -48,58 +48,74 @@ export function PortfolioEdit() {
 
   return (
     <div className="container">
-      <div className="page-header">
-        <h1>{portfolio.title}</h1>
-        <button className="btn btn-danger" onClick={remove}>Delete</button>
-      </div>
-      <div className="field">
-        <label htmlFor="title">Title</label>
-        <input id="title" value={portfolio.title} onChange={(e) => setPortfolio({ ...portfolio, title: e.target.value })} />
-      </div>
-      <div className="field">
-        <label htmlFor="slug">Slug</label>
-        <input id="slug" value={portfolio.slug} onChange={(e) => setPortfolio({ ...portfolio, slug: e.target.value })} />
-      </div>
-      <div className="field">
-        <label htmlFor="description">Description (markdown)</label>
-        <textarea id="description" rows={4} value={portfolio.description} onChange={(e) => setPortfolio({ ...portfolio, description: e.target.value })} />
-      </div>
-      <div className="field checkbox-row">
-        <input
-          id="public"
-          type="checkbox"
-          checked={portfolio.is_public}
-          onChange={(e) => setPortfolio({ ...portfolio, is_public: e.target.checked })}
-        />
-        <label htmlFor="public" style={{ margin: 0, textTransform: 'none' }}>Public</label>
-      </div>
-      {portfolio.is_public && (
-        <div className="field">
-          <label>Share link</label>
-          <div className="copy-link">{shareUrl}</div>
+      <div className="cc-page-header">
+        <div>
+          <p className="cc-kicker">Share</p>
+          <h1 className="cc-h1">{portfolio.title}</h1>
         </div>
-      )}
-
-      <label>Items ({portfolio.item_ids.length} selected)</label>
-      <div className="item-checklist">
-        {items.map((item) => (
-          <label key={item.id}>
-            {item.preview_url ? <img src={item.preview_url} alt={item.title} /> : <div className="work-card-thumb"><span className="no-preview">no preview</span></div>}
-            <div className="checkbox-row">
-              <input
-                type="checkbox"
-                checked={portfolio.item_ids.includes(item.id)}
-                onChange={() => toggleItem(item.id)}
-              />
-              {item.title}
-            </div>
-          </label>
-        ))}
+        <button className="cc-btn cc-btn--danger" onClick={remove}>Delete</button>
       </div>
 
-      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-        <button className="btn" onClick={save}>Save</button>
-        {saved && <span className="list-row-meta">Saved.</span>}
+      <div className="cc-panel cc-stack">
+        <div className="cc-field">
+          <label className="cc-label" htmlFor="title">Title</label>
+          <input id="title" className="cc-input" value={portfolio.title} onChange={(e) => setPortfolio({ ...portfolio, title: e.target.value })} />
+        </div>
+        <div className="cc-field">
+          <label className="cc-label" htmlFor="slug">Slug</label>
+          <input id="slug" className="cc-input" value={portfolio.slug} onChange={(e) => setPortfolio({ ...portfolio, slug: e.target.value })} />
+        </div>
+        <div className="cc-field">
+          <label className="cc-label" htmlFor="description">Description (markdown)</label>
+          <textarea id="description" className="cc-textarea" rows={4} value={portfolio.description} onChange={(e) => setPortfolio({ ...portfolio, description: e.target.value })} />
+        </div>
+        <label className="cc-check">
+          <input
+            id="public"
+            type="checkbox"
+            checked={portfolio.is_public}
+            onChange={(e) => setPortfolio({ ...portfolio, is_public: e.target.checked })}
+          />
+          <span className="cc-check__box" />
+          Public
+        </label>
+        {portfolio.is_public && (
+          <div className="cc-field">
+            <label className="cc-label">Share link</label>
+            <div className="cc-sharebox">{shareUrl}</div>
+          </div>
+        )}
+      </div>
+
+      <div className="cc-section">
+        <div className="cc-section__head">
+          <h2 className="cc-h2">Items<span className="cc-count">({portfolio.item_ids.length} selected)</span></h2>
+        </div>
+        <div className="cc-picker">
+          {items.map((item) => (
+            <div className="cc-picker__item" key={item.id} data-on={portfolio.item_ids.includes(item.id)} onClick={() => toggleItem(item.id)}>
+              <div className="cc-thumb">
+                {item.preview_url ? <img src={item.preview_url} alt={item.title} loading="lazy" /> : <span className="cc-thumb__label">no preview</span>}
+              </div>
+              <div className="cc-picker__bar">
+                <label className="cc-check" onClick={(e) => e.stopPropagation()}>
+                  <input
+                    type="checkbox"
+                    checked={portfolio.item_ids.includes(item.id)}
+                    onChange={() => toggleItem(item.id)}
+                  />
+                  <span className="cc-check__box" />
+                </label>
+                <h3 className="cc-card__title">{item.title}</h3>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="cc-row-tight" style={{ marginTop: 'var(--space-5)' }}>
+        <button className="cc-btn cc-btn--primary" onClick={save}>Save</button>
+        {saved && <span className="cc-saved">Saved.</span>}
       </div>
     </div>
   )

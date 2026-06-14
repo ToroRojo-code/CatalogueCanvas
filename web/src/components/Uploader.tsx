@@ -29,12 +29,13 @@ export function Uploader({ onUploaded }: { onUploaded: () => void }) {
 
   return (
     <div
-      className={`dropzone${dragOver ? ' dragover' : ''}`}
+      className={`cc-dropzone${dragOver ? ' cc-dropzone--over' : ''}`}
       onClick={() => inputRef.current?.click()}
       onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
       onDragLeave={() => setDragOver(false)}
       onDrop={onDrop}
     >
+      <span className="cc-dropzone__icon" />
       <input
         ref={inputRef}
         type="file"

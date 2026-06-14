@@ -45,6 +45,11 @@ export interface DescribeResult {
   summary: string
 }
 
+export type Theme = 'light' | 'dark'
+export type Accent = 'default' | 'cobalt' | 'terracotta' | 'forest' | 'mint' | 'ink'
+export type NavLayout = 'top' | 'side'
+export type Density = 'airy' | 'balanced' | 'dense'
+
 export interface AppSettings {
   llm_api_url: string
   llm_model: string
@@ -54,6 +59,10 @@ export interface AppSettings {
   llm_bullet_max_words: string
   llm_prompt_template: string
   llm_prompt_template_default: string
+  theme: Theme
+  accent: Accent
+  nav: NavLayout
+  density: Density
   stats: { total_items: number; total_collections: number; missing_preview: number }
 }
 
@@ -161,7 +170,7 @@ export const getPublicPortfolio = (slug: string) => request<PublicPortfolio>(`/a
 // --- settings ---
 export const getSettings = () => request<AppSettings>('/api/settings')
 
-export const updateSettings = (fields: Partial<Pick<AppSettings, 'llm_api_url' | 'llm_model' | 'llm_item_type' | 'llm_summary_focus' | 'llm_bullet_count' | 'llm_bullet_max_words' | 'llm_prompt_template'>>) =>
+export const updateSettings = (fields: Partial<Pick<AppSettings, 'llm_api_url' | 'llm_model' | 'llm_item_type' | 'llm_summary_focus' | 'llm_bullet_count' | 'llm_bullet_max_words' | 'llm_prompt_template' | 'theme' | 'accent' | 'nav' | 'density'>>) =>
   request<AppSettings>('/api/settings', { method: 'PUT', body: JSON.stringify(fields) })
 
 export const itemArchiveUrl = (id: string) => `/api/items/${id}/archive`

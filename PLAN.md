@@ -1,4 +1,6 @@
+- Notes must be rendered in MD and not displayed as raw text. So they have a edit button for raw md and save to display the rendered format
 
+- Notes are bellow the art piece, not on the right windows
 
 ////// Ignore and do not READ bellow this line ///////
 

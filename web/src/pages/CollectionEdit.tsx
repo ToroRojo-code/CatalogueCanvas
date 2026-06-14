@@ -16,7 +16,7 @@ export function CollectionEdit() {
     api.listItems().then((all) => setItems(all.filter((i) => i.collection_id === id)))
   }, [id])
 
-  if (!collection) return <div className="container empty-state">Loading...</div>
+  if (!collection) return <div className="container"><div className="cc-empty"><p className="cc-empty__title">Loading...</p></div></div>
 
   const save = async () => {
     const updated = await api.updateCollection(collection.id, {
@@ -34,28 +34,42 @@ export function CollectionEdit() {
 
   return (
     <div className="container">
-      <div className="page-header">
-        <h1>{collection.title}</h1>
-        <button className="btn btn-danger" onClick={remove}>Delete</button>
-      </div>
-      <div className="field">
-        <label htmlFor="title">Title</label>
-        <input id="title" value={collection.title} onChange={(e) => setCollection({ ...collection, title: e.target.value })} />
-      </div>
-      <div className="field">
-        <label htmlFor="description">Description (markdown)</label>
-        <textarea id="description" rows={4} value={collection.description} onChange={(e) => setCollection({ ...collection, description: e.target.value })} />
-      </div>
-      <button className="btn" onClick={save}>Save</button>
-
-      <div className="page-header"><h1>Items ({items.length})</h1></div>
-      {items.length === 0 ? (
-        <div className="empty-state">No items in this collection. Assign items from their edit page.</div>
-      ) : (
-        <div className="works-grid">
-          {items.map((item) => <ItemCard key={item.id} item={item} />)}
+      <div className="cc-page-header">
+        <div>
+          <p className="cc-kicker">Organize</p>
+          <h1 className="cc-h1">{collection.title}</h1>
         </div>
-      )}
+        <button className="cc-btn cc-btn--danger" onClick={remove}>Delete</button>
+      </div>
+      <div className="cc-panel cc-stack">
+        <div className="cc-field">
+          <label className="cc-label" htmlFor="title">Title</label>
+          <input id="title" className="cc-input" value={collection.title} onChange={(e) => setCollection({ ...collection, title: e.target.value })} />
+        </div>
+        <div className="cc-field">
+          <label className="cc-label" htmlFor="description">Description (markdown)</label>
+          <textarea id="description" className="cc-textarea" rows={4} value={collection.description} onChange={(e) => setCollection({ ...collection, description: e.target.value })} />
+        </div>
+        <div>
+          <button className="cc-btn cc-btn--primary" onClick={save}>Save</button>
+        </div>
+      </div>
+
+      <div className="cc-section">
+        <div className="cc-section__head">
+          <h2 className="cc-h2">Items<span className="cc-count">({items.length})</span></h2>
+        </div>
+        {items.length === 0 ? (
+          <div className="cc-empty">
+            <p className="cc-empty__title">No items in this collection</p>
+            <p className="cc-empty__sub">Assign items from their edit page.</p>
+          </div>
+        ) : (
+          <div className="cc-grid">
+            {items.map((item) => <ItemCard key={item.id} item={item} />)}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

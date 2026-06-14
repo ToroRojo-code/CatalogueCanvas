@@ -29,11 +29,19 @@ LLM_DEFAULTS = {
     "llm_bullet_max_words": "50",
 }
 
+APPEARANCE_DEFAULTS = {
+    "theme": "light",
+    "accent": "default",
+    "nav": "top",
+    "density": "balanced",
+}
+
 
 def _settings_response(conn: sqlite3.Connection) -> dict:
     stored = get_settings(conn)
     return {
         **{k: stored.get(k, v) for k, v in LLM_DEFAULTS.items()},
+        **{k: stored.get(k, v) for k, v in APPEARANCE_DEFAULTS.items()},
         "llm_prompt_template": stored.get("llm_prompt_template") or default_prompt_template(),
         "llm_prompt_template_default": default_prompt_template(),
         "stats": get_db_stats(conn),
@@ -53,6 +61,10 @@ class SettingsUpdate(BaseModel):
     llm_bullet_count: Optional[str] = None
     llm_bullet_max_words: Optional[str] = None
     llm_prompt_template: Optional[str] = None
+    theme: Optional[str] = None
+    accent: Optional[str] = None
+    nav: Optional[str] = None
+    density: Optional[str] = None
 
 
 @router.put("")

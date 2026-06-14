@@ -16,118 +16,79 @@ export function Deck() {
       .catch(() => setError('Portfolio not found.'))
   }, [slug])
 
-  if (error) return <div className="deck"><section><div className="empty-state">{error}</div></section></div>
-  if (!portfolio) return <div className="deck"><section /></div>
+  if (error) return <div className="cc-deck"><section className="cc-deck__sec"><div className="cc-empty"><p className="cc-empty__title">{error}</p></div></section></div>
+  if (!portfolio) return <div className="cc-deck"><section className="cc-deck__sec" /></div>
 
   const items = portfolio.items
   const total = items.length
 
   return (
-    <div className="deck">
-      <section className="cover">
-        <div className="matte" />
-        <div className="top">
-          <span>Portfolio</span>
-          <span>{total} works</span>
-        </div>
-        <div className="center">
-          <h1>{portfolio.title}</h1>
-          {portfolio.description && <p className="sub">{portfolio.description}</p>}
-        </div>
-        <div className="foot">
-          <span className="name">CatalogCanvas</span>
+    <div className="cc-deck">
+      <section className="cc-deck__sec cc-deck__cover">
+        <p className="cc-deck__kicker">Portfolio · {total} works</p>
+        <h1 className="cc-deck__title">{portfolio.title}</h1>
+        {portfolio.description && <p className="cc-deck__desc">{portfolio.description}</p>}
+        <div className="cc-deck__cover-foot">
+          <span>CatalogCanvas</span>
           <span>/p/{portfolio.slug}</span>
         </div>
       </section>
 
-      <section className="index">
-        <div className="matte" />
-        <div className="runhead">
-          <span>Index</span>
-          <span className="r">{total} works</span>
-        </div>
-        <hr className="rule" />
-        <div className="head">
+      <section className="cc-deck__sec">
+        <div className="cc-deck__indexhead">
           <h2>Works</h2>
-          <div className="meta">{portfolio.slug}</div>
+          <span className="cc-mono">{portfolio.slug}</span>
         </div>
-        <div className="grid">
+        <div className="cc-deck__indexgrid">
           {items.map((item, i) => (
-            <div className="cell" key={item.id}>
-              <div className="thumb">
+            <div className="cc-deck__idxitem" key={item.id}>
+              <span className="cc-deck__idxnum">{String(i + 1).padStart(2, '0')}</span>
+              <div className="cc-thumb">
                 {item.preview_url
                   ? <img src={item.preview_url} alt={item.title} />
-                  : <span className="no-preview">no preview</span>}
+                  : <span className="cc-thumb__label">no preview</span>}
               </div>
-              <div className="cap">
-                <span className="no">{String(i + 1).padStart(2, '0')}</span>
-                <span className="id">{item.title}</span>
-              </div>
+              <div className="cc-deck__idxtitle">{item.title}</div>
             </div>
           ))}
         </div>
       </section>
 
       {items.map((item, i) => (
-        <section className="art" key={item.id}>
-          <div className="matte" />
-          <div className="runhead">
-            <span>Work {String(i + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}</span>
-            <span className="r">{portfolio.title}</span>
+        <section className="cc-deck__sec cc-deck__art" key={item.id}>
+          <div className="cc-deck__plate">
+            {item.preview_url
+              ? <img src={item.preview_url} alt={item.title} />
+              : <span>no preview</span>}
           </div>
-          <hr className="rule" />
-          <div className="body">
-            <div className="plate-wrap">
-              <div className="plate">
-                {item.preview_url
-                  ? <img src={item.preview_url} alt={item.title} />
-                  : <span className="no-preview">no preview</span>}
+          <div className="cc-deck__caption">
+            <p className="cc-deck__kicker">Work {String(i + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}</p>
+            <h3>{item.title}</h3>
+            <span className="cc-mono">{item.id}</span>
+            {item.note && <p>{item.note}</p>}
+            {item.tags.length > 0 && (
+              <div className="cc-deck__tags">
+                {item.tags.map((tag) => <span className="cc-tag" key={tag}>{tag}</span>)}
               </div>
-            </div>
-            <div className="caption">
-              <div className="kicker">Work {String(i + 1).padStart(2, '0')}</div>
-              <h3><span className="u">{item.title}</span></h3>
-              <div className="id">{item.id}</div>
-              {item.note && <p className="desc">{item.note}</p>}
-              {item.tags.length > 0 && (
-                <dl className="specs">
-                  <dt>Tags</dt>
-                  <dd>{item.tags.join(', ')}</dd>
-                </dl>
-              )}
-            </div>
-          </div>
-          <div className="artfoot">
-            <span>{portfolio.slug}</span>
-            <span>{String(i + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}</span>
+            )}
           </div>
         </section>
       ))}
 
-      <section className="colo">
-        <div className="matte" />
-        <div className="top">
-          <span>Colophon</span>
-          <span>CatalogCanvas</span>
+      <section className="cc-deck__sec cc-deck__colo">
+        <div>
+          <h2>About this work</h2>
+          {portfolio.description && <p>{portfolio.description}</p>}
+          <p>A portfolio of {total} works shared via CatalogCanvas.</p>
         </div>
-        <div className="main">
-          <div>
-            <h2>About this work</h2>
-            {portfolio.description && <p>{portfolio.description}</p>}
-            <p>A portfolio of {total} works shared via CatalogCanvas.</p>
-          </div>
-          <div className="works">
-            <div className="wlbl">Works</div>
-            <ol>
-              {items.map((item, i) => (
-                <li key={item.id}>
-                  <span className="wn">{String(i + 1).padStart(2, '0')}</span>
-                  <span className="wid">{item.title}</span>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </div>
+        <ul className="cc-deck__worklist">
+          {items.map((item, i) => (
+            <li key={item.id}>
+              <span className="cc-mono">{String(i + 1).padStart(2, '0')}</span>
+              <span>{item.title}</span>
+            </li>
+          ))}
+        </ul>
       </section>
     </div>
   )

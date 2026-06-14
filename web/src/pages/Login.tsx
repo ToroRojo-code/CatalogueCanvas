@@ -25,20 +25,24 @@ export function Login() {
   }
 
   return (
-    <div className="login-page">
-      <form className="login-card" onSubmit={onSubmit}>
-        <h1>CatalogCanvas</h1>
-        <div className="field">
-          <label htmlFor="password">Admin password</label>
+    <div className="cc-login">
+      <form className="cc-login__card" onSubmit={onSubmit}>
+        <div className="cc-login__logo">
+          <span className="cc-mark" />
+          CatalogCanvas
+        </div>
+        <div className="cc-field">
+          <label className="cc-label" htmlFor="password">Admin password</label>
           <input
             id="password"
+            className="cc-input"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             autoFocus
           />
         </div>
-        <button className="btn" type="submit" disabled={busy} style={{ width: '100%' }}>
+        <button className="cc-btn cc-btn--primary" type="submit" disabled={busy} style={{ width: '100%' }}>
           {busy ? 'Logging in...' : 'Log in'}
         </button>
         {error && <div className="error-text">{error}</div>}
