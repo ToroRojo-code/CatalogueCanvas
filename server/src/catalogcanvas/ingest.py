@@ -101,6 +101,11 @@ def ingest_zip_bytes(
                 out_file = items_dir / "preview.webp"
                 to_webp(member_data, preview_mime, out_file, scale=image_scale)
                 preview_path = str(out_file.relative_to(storage_dir))
+                if preview_mime == "image/svg+xml":
+                    other_dir.mkdir(parents=True, exist_ok=True)
+                    svg_file = other_dir / base_name
+                    svg_file.write_bytes(member_data)
+                    other_files.append(str(svg_file.relative_to(storage_dir)))
                 continue
 
             if base_name in ("metadata.json", "metadata.toml"):

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, Link } from 'react-router-dom'
 import * as api from '../api/client'
 import type { Item, DescribeResult, AppSettings } from '../api/client'
 import { LLMButton } from '../components/LLMButton'
@@ -11,6 +11,7 @@ export function ItemEdit() {
   const [item, setItem] = useState<Item | null>(null)
   const [llmResult, setLlmResult] = useState<DescribeResult | null>(null)
   const [settings, setSettings] = useState<AppSettings | null>(null)
+  const [itemIds, setItemIds] = useState<string[]>([])
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -19,6 +20,10 @@ export function ItemEdit() {
 
   useEffect(() => {
     api.getSettings().then(setSettings)
+  }, [])
+
+  useEffect(() => {
+    api.listItems().then((items) => setItemIds(items.map((i) => i.id)))
   }, [])
 
   if (!item) return <div className="container"><div className="cc-empty"><p className="cc-empty__title">Loading...</p></div></div>
@@ -37,8 +42,18 @@ export function ItemEdit() {
     navigate('/')
   }
 
+  const currentIndex = itemIds.indexOf(item.id)
+  const prevId = currentIndex > 0 ? itemIds[currentIndex - 1] : null
+  const nextId = currentIndex >= 0 && currentIndex < itemIds.length - 1 ? itemIds[currentIndex + 1] : null
+
   return (
     <div className="container">
+      {prevId && (
+        <Link to={`/items/${prevId}`} className="cc-item-nav cc-item-nav--prev" aria-label="Previous item">‹</Link>
+      )}
+      {nextId && (
+        <Link to={`/items/${nextId}`} className="cc-item-nav cc-item-nav--next" aria-label="Next item">›</Link>
+      )}
       <div className="cc-page-header">
         <div>
           <p className="cc-kicker">Catalog</p>

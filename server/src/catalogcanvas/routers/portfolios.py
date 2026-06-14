@@ -1,6 +1,5 @@
 from __future__ import annotations
 import json
-import re
 import sqlite3
 import uuid
 from typing import Any, Optional
@@ -17,17 +16,11 @@ from ..db import (
     get_portfolio_by_slug,
     upsert_portfolio,
 )
+from ..ids import generate_portfolio_slug
 from .auth import get_db
 from .items import _enrich
 
 router = APIRouter(tags=["portfolios"])
-
-_SLUG_RE = re.compile(r"[^a-z0-9]+")
-
-
-def _slugify(text: str) -> str:
-    slug = _SLUG_RE.sub("-", text.lower()).strip("-")
-    return slug or "portfolio"
 
 
 def _json_field(value: Any) -> Any:
@@ -71,9 +64,12 @@ class PortfolioCreate(BaseModel):
 
 @router.post("/api/portfolios")
 def create_portfolio(body: PortfolioCreate, conn: sqlite3.Connection = Depends(get_db), _: None = Depends(require_admin)):
-    slug = body.slug or _slugify(body.title)
-    if get_portfolio_by_slug(conn, slug):
-        raise HTTPException(status_code=409, detail="slug already in use")
+    if body.slug:
+        slug = body.slug
+        if get_portfolio_by_slug(conn, slug):
+            raise HTTPException(status_code=409, detail="slug already in use")
+    else:
+        slug = generate_portfolio_slug(lambda s: get_portfolio_by_slug(conn, s) is not None)
     p_id = uuid.uuid4().hex
     upsert_portfolio(conn, {
         "id": p_id,

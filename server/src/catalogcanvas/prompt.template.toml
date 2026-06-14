@@ -8,10 +8,10 @@ descriptions = "array of exactly {bullet_count} bullet points, each under {bulle
 summary = "a couple of sentences covering {summary_focus}"
 
 [instructions]
-task = "Analyze the provided {item_type} and return a JSON object matching the output_schema above."
+task = "Analyze the provided {item_type} and describe it matching the output_schema above."
 constraints = [
-    "Provide exactly {bullet_count} bullet points in the descriptions array.",
+    "Provide exactly {bullet_count} bullet points, each starting with '-'.",
     "Each bullet point must be under {bullet_max_words} words.",
-    "The summary must be a couple of sentences covering {summary_focus}.",
-    "Output only the raw JSON code without any conversational filler or markdown code blocks.",
+    "Before the bullet points, write a summary of a couple of sentences covering {summary_focus}.",
+    "Respond either as a JSON object with 'descriptions' and 'summary' keys, or as plain markdown text with the summary followed by the bullet list.",
 ]

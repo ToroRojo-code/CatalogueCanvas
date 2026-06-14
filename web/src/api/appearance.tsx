@@ -39,9 +39,9 @@ export function AppearanceProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    api.getSettings()
+    api.getAppearance()
       .then((s) => setAppearanceState({ theme: s.theme, accent: s.accent, nav: s.nav, density: s.density }))
-      .catch(() => { /* unauthenticated (e.g. public deck) — use defaults */ })
+      .catch(() => { /* use defaults */ })
       .finally(() => setLoading(false))
   }, [])
 

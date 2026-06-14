@@ -32,3 +32,13 @@ def generate_item_id(conn: sqlite3.Connection) -> str:
         if not id_exists(conn, candidate):
             return candidate
     raise RuntimeError(f"could not generate a unique item id after {MAX_ATTEMPTS} attempts")
+
+
+def generate_portfolio_slug(exists) -> str:
+    """Generate a slug of the form '<word>-<word>-<word>'."""
+    words = _load_words()
+    for _ in range(MAX_ATTEMPTS):
+        candidate = "-".join(random.choice(words) for _ in range(3))
+        if not exists(candidate):
+            return candidate
+    raise RuntimeError(f"could not generate a unique slug after {MAX_ATTEMPTS} attempts")

@@ -171,7 +171,10 @@ export const getPublicPortfolio = (slug: string) => request<PublicPortfolio>(`/a
 // --- settings ---
 export const getSettings = () => request<AppSettings>('/api/settings')
 
-export const updateSettings = (fields: Partial<Pick<AppSettings, 'llm_api_url' | 'llm_model' | 'llm_item_type' | 'llm_summary_focus' | 'llm_bullet_count' | 'llm_bullet_max_words' | 'llm_prompt_template' | 'theme' | 'accent' | 'nav' | 'density'>>) =>
+export const getAppearance = () =>
+  request<Pick<AppSettings, 'theme' | 'accent' | 'nav' | 'density'>>('/api/settings/appearance')
+
+export const updateSettings = (fields: Partial<Pick<AppSettings, 'llm_api_url' | 'llm_model' | 'llm_item_type' | 'llm_summary_focus' | 'llm_bullet_count' | 'llm_bullet_max_words' | 'llm_auto_generate' | 'llm_prompt_template' | 'theme' | 'accent' | 'nav' | 'density'>>) =>
   request<AppSettings>('/api/settings', { method: 'PUT', body: JSON.stringify(fields) })
 
 export const itemArchiveUrl = (id: string) => `/api/items/${id}/archive`

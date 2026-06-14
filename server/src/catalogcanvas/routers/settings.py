@@ -21,8 +21,8 @@ from .auth import get_db
 router = APIRouter(prefix="/api/settings", tags=["settings"])
 
 LLM_DEFAULTS = {
-    "llm_api_url": "http://localhost:1234/v1/chat/completions",
-    "llm_model": "google/gemma-4-12b-qat",
+    "llm_api_url": "",
+    "llm_model": "",
     "llm_item_type": "image",
     "llm_summary_focus": "the item's notable characteristics",
     "llm_bullet_count": "3",
@@ -52,6 +52,12 @@ def _settings_response(conn: sqlite3.Connection) -> dict:
 @router.get("")
 def get_settings_endpoint(conn: sqlite3.Connection = Depends(get_db), _: None = Depends(require_admin)):
     return _settings_response(conn)
+
+
+@router.get("/appearance")
+def get_appearance_endpoint(conn: sqlite3.Connection = Depends(get_db)):
+    stored = get_settings(conn)
+    return {k: stored.get(k, v) for k, v in APPEARANCE_DEFAULTS.items()}
 
 
 class SettingsUpdate(BaseModel):

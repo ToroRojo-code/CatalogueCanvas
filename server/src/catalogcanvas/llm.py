@@ -1,6 +1,7 @@
 from __future__ import annotations
 import base64
 import json
+import re
 import tomllib
 from pathlib import Path
 from typing import Any
@@ -35,7 +36,7 @@ def _build_prompt(item_type: str, summary_focus: str, bullet_count: int, bullet_
 
     prompt = (
         f"{instructions['task']} "
-        f"The JSON object should look like: {{{schema_str}}}. "
+        f"If responding with JSON, it should look like: {{{schema_str}}}. "
         f"Constraints: {constraints_str}"
     )
     return (
@@ -101,15 +102,42 @@ def describe(
         content = "\n".join(line for line in content.splitlines() if not line.startswith("```"))
 
     start = content.find("{")
-    if start == -1:
-        raise LLMError("LLM returned invalid JSON: no JSON object found")
+    if start != -1:
+        try:
+            inner, _ = json.JSONDecoder().raw_decode(content, start)
+            return {
+                "descriptions": inner.get("descriptions", []),
+                "summary": inner.get("summary", ""),
+            }
+        except json.JSONDecodeError:
+            pass
 
-    try:
-        inner, _ = json.JSONDecoder().raw_decode(content, start)
-    except json.JSONDecodeError as exc:
-        raise LLMError(f"LLM returned invalid JSON: {exc}") from exc
+    return _parse_markdown_response(content)
+
+
+_BULLET_RE = re.compile(r"^\s*(?:[-*]|\d+[.)])\s+(.*)")
+
+
+def _parse_markdown_response(content: str) -> dict[str, Any]:
+    """Fall back to plain-text/markdown parsing when the LLM doesn't return JSON.
+
+    Bullet list lines (-, *, or numbered) become `descriptions`; the remaining
+    non-empty lines are joined as `summary`.
+    """
+    descriptions: list[str] = []
+    summary_lines: list[str] = []
+
+    for line in content.splitlines():
+        stripped = line.strip()
+        if not stripped:
+            continue
+        match = _BULLET_RE.match(line)
+        if match:
+            descriptions.append(match.group(1).strip())
+        else:
+            summary_lines.append(stripped)
 
     return {
-        "descriptions": inner.get("descriptions", []),
-        "summary": inner.get("summary", ""),
+        "descriptions": descriptions,
+        "summary": " ".join(summary_lines),
     }
