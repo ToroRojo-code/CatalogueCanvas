@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import * as api from '../api/client'
 import type { Item, Portfolio } from '../api/client'
+import { Icon } from './Icon'
 
 interface Props {
   selectedIds: string[]
@@ -109,8 +110,8 @@ export function BulkToolbar({ selectedIds, items, portfolios, totalCount, onDone
         <span className="cc-bulk-toolbar__count">{selectedIds.length} selected</span>
         <button className="cc-btn" onClick={onSelectAll} disabled={busy}>Select all ({totalCount})</button>
         <button className="cc-btn" onClick={onClear} disabled={busy}>Clear selection</button>
-        <button className="cc-btn cc-btn--danger" onClick={clearNotes} disabled={busy}>Clear notes</button>
-        <button className="cc-btn" onClick={download} disabled={busy}>Download zip</button>
+        <button className="cc-btn cc-btn--danger" onClick={clearNotes} disabled={busy}><Icon name="delete" size={15} />Clear notes</button>
+        <button className="cc-btn" onClick={download} disabled={busy}><Icon name="download" size={15} />Download zip</button>
         <input
           className="cc-input"
           placeholder="tag1, tag2..."
@@ -136,7 +137,7 @@ export function BulkToolbar({ selectedIds, items, portfolios, totalCount, onDone
           Skip items that already have a note
         </label>
         <button className="cc-btn cc-btn--primary" onClick={generateDescriptions} disabled={busy}>
-          {busy && progress ? progress : 'Generate descriptions (LLM)'}
+          {busy && progress ? progress : <><Icon name="generate" size={15} />Generate descriptions (LLM)</>}
         </button>
         {busy && progress && (
           <button className="cc-btn" onClick={() => { cancelRef.current = true }}>Cancel</button>

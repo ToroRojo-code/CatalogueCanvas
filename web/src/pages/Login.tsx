@@ -28,7 +28,10 @@ export function Login() {
     <div className="cc-login">
       <form className="cc-login__card" onSubmit={onSubmit}>
         <div className="cc-login__logo">
-          <span className="cc-mark" />
+          <svg className="cc-mark" viewBox="0 0 48 48" aria-hidden="true">
+            <path d="M40 13 A16 16 0 1 0 40 35" fill="none" stroke="var(--text)" strokeWidth="3.4" strokeLinecap="round" />
+            <path d="M34 19 A9 9 0 1 0 34 29" fill="none" stroke="var(--accent)" strokeWidth="3.4" strokeLinecap="round" />
+          </svg>
           CatalogCanvas
         </div>
         <div className="cc-field">

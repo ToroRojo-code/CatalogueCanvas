@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import * as api from '../api/client'
 import type { Portfolio } from '../api/client'
+import { Icon } from '../components/Icon'
 
 export function Portfolios() {
   const [portfolios, setPortfolios] = useState<Portfolio[]>([])
@@ -33,7 +34,7 @@ export function Portfolios() {
       </div>
       <div className="cc-createbar">
         <input className="cc-input" placeholder="New portfolio title" value={title} onChange={(e) => setTitle(e.target.value)} />
-        <button className="cc-btn cc-btn--primary" onClick={create}>Create</button>
+        <button className="cc-btn cc-btn--primary" onClick={create}><Icon name="create" size={15} />Create</button>
       </div>
       {portfolios.length === 0 ? (
         <div className="cc-empty">
@@ -54,9 +55,9 @@ export function Portfolios() {
                 </div>
               </div>
               <div className="cc-row__actions">
-                {p.is_public && <a className="cc-btn cc-btn--sm" href={`/p/${p.slug}`} target="_blank" rel="noreferrer">View</a>}
-                <Link className="cc-btn cc-btn--sm" to={`/portfolios/${p.id}`}>Edit</Link>
-                <button className="cc-btn cc-btn--danger cc-btn--sm" onClick={() => remove(p.id)}>Delete</button>
+                {p.is_public && <a className="cc-btn cc-btn--sm" href={`/p/${p.slug}`} target="_blank" rel="noreferrer"><Icon name="view" size={14} />View</a>}
+                <Link className="cc-btn cc-btn--sm" to={`/portfolios/${p.id}`}><Icon name="edit" size={14} />Edit</Link>
+                <button className="cc-btn cc-btn--danger cc-btn--sm" onClick={() => remove(p.id)}><Icon name="delete" size={14} />Delete</button>
               </div>
             </div>
           ))}

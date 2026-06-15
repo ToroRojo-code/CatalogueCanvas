@@ -3,6 +3,7 @@ import * as api from '../api/client'
 import type { Item, Portfolio } from '../api/client'
 import { ItemCard } from '../components/ItemCard'
 import { BulkToolbar } from '../components/BulkToolbar'
+import { Icon } from '../components/Icon'
 import { useSelection } from '../api/selection'
 
 type SortBy = 'date-new' | 'date-old' | 'title-asc' | 'title-desc' | 'note' | 'no-note'
@@ -14,6 +15,7 @@ export function Dashboard() {
   const [query, setQuery] = useState('')
   const [sortBy, setSortBy] = useState<SortBy>('date-new')
   const [tagFilter, setTagFilter] = useState('')
+  const [filtersOpen, setFiltersOpen] = useState(false)
   const { batchMode, selected, toggleSelect, selectAll, clear } = useSelection()
 
   const refresh = useCallback(() => {
@@ -78,19 +80,34 @@ export function Dashboard() {
           <input className="cc-input" placeholder="Search items..." value={query} onChange={(e) => setQuery(e.target.value)} />
         </div>
       </div>
-      <div className="cc-row-tight" style={{ marginBottom: 'var(--space-3)' }}>
-        <select className="cc-input cc-select" value={sortBy} onChange={(e) => setSortBy(e.target.value as SortBy)}>
-          <option value="date-new">Newest first</option>
-          <option value="date-old">Oldest first</option>
-          <option value="title-asc">Title A-Z</option>
-          <option value="title-desc">Title Z-A</option>
-          <option value="note">Has note first</option>
-          <option value="no-note">No note first</option>
-        </select>
-        <select className="cc-input cc-select" value={tagFilter} onChange={(e) => setTagFilter(e.target.value)}>
-          <option value="">All tags</option>
-          {allTags.map((t) => <option key={t} value={t}>{t}</option>)}
-        </select>
+      <div className="cc-filterbar">
+        <button
+          type="button"
+          className="cc-btn cc-btn--sm cc-btn--ghost cc-filterbar__toggle"
+          onClick={() => setFiltersOpen((o) => !o)}
+          aria-expanded={filtersOpen}
+        >
+          <Icon name="filter" size={14} />
+          Filter &amp; sort
+          {tagFilter && <span className="cc-filterbar__badge">{tagFilter}</span>}
+          <Icon name="chevronDown" size={14} className={filtersOpen ? 'cc-filterbar__chevron--open' : ''} />
+        </button>
+        {filtersOpen && (
+          <div className="cc-row-tight cc-filterbar__panel">
+            <select className="cc-input cc-select" value={sortBy} onChange={(e) => setSortBy(e.target.value as SortBy)}>
+              <option value="date-new">Newest first</option>
+              <option value="date-old">Oldest first</option>
+              <option value="title-asc">Title A-Z</option>
+              <option value="title-desc">Title Z-A</option>
+              <option value="note">Has note first</option>
+              <option value="no-note">No note first</option>
+            </select>
+            <select className="cc-input cc-select" value={tagFilter} onChange={(e) => setTagFilter(e.target.value)}>
+              <option value="">All tags</option>
+              {allTags.map((t) => <option key={t} value={t}>{t}</option>)}
+            </select>
+          </div>
+        )}
       </div>
       {batchMode && (
         <BulkToolbar

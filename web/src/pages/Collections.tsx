@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import * as api from '../api/client'
 import type { Collection } from '../api/client'
+import { Icon } from '../components/Icon'
 
 export function Collections() {
   const [collections, setCollections] = useState<Collection[]>([])
@@ -33,7 +34,7 @@ export function Collections() {
       </div>
       <div className="cc-createbar">
         <input className="cc-input" placeholder="New collection title" value={title} onChange={(e) => setTitle(e.target.value)} />
-        <button className="cc-btn cc-btn--primary" onClick={create}>Create</button>
+        <button className="cc-btn cc-btn--primary" onClick={create}><Icon name="create" size={15} />Create</button>
       </div>
       {collections.length === 0 ? (
         <div className="cc-empty">
@@ -48,8 +49,8 @@ export function Collections() {
                 <div className="cc-row__meta"><span>{c.id}</span></div>
               </div>
               <div className="cc-row__actions">
-                <Link className="cc-btn cc-btn--sm" to={`/collections/${c.id}`}>Edit</Link>
-                <button className="cc-btn cc-btn--danger cc-btn--sm" onClick={() => remove(c.id)}>Delete</button>
+                <Link className="cc-btn cc-btn--sm" to={`/collections/${c.id}`}><Icon name="edit" size={14} />Edit</Link>
+                <button className="cc-btn cc-btn--danger cc-btn--sm" onClick={() => remove(c.id)}><Icon name="delete" size={14} />Delete</button>
               </div>
             </div>
           ))}

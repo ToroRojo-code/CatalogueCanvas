@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import * as api from '../api/client'
 import type { Item, Portfolio } from '../api/client'
+import { Icon } from '../components/Icon'
 
 export function PortfolioEdit() {
   const { id } = useParams<{ id: string }>()
@@ -53,7 +54,7 @@ export function PortfolioEdit() {
           <p className="cc-kicker">Share</p>
           <h1 className="cc-h1">{portfolio.title}</h1>
         </div>
-        <button className="cc-btn cc-btn--danger" onClick={remove}>Delete</button>
+        <button className="cc-btn cc-btn--danger" onClick={remove}><Icon name="delete" size={15} />Delete</button>
       </div>
 
       <div className="cc-panel cc-stack">
@@ -115,7 +116,7 @@ export function PortfolioEdit() {
       </div>
 
       <div className="cc-row-tight" style={{ marginTop: 'var(--space-5)' }}>
-        <button className="cc-btn cc-btn--primary" onClick={save}>Save</button>
+        <button className="cc-btn cc-btn--primary" onClick={save}><Icon name="save" size={15} />Save</button>
         {saved && <span className="cc-saved">Saved.</span>}
       </div>
     </div>

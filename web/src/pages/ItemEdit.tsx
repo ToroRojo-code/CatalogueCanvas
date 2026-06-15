@@ -5,6 +5,7 @@ import type { Item, DescribeResult, AppSettings } from '../api/client'
 import { LLMButton } from '../components/LLMButton'
 import { MetadataForm } from '../components/MetadataForm'
 import { NotesPanel } from '../components/NotesPanel'
+import { Icon } from '../components/Icon'
 
 export function ItemEdit() {
   const { id } = useParams<{ id: string }>()
@@ -70,7 +71,7 @@ export function ItemEdit() {
           <p className="cc-kicker">Catalog</p>
           <h1 className="cc-h1">{item.title}</h1>
         </div>
-        <button className="cc-btn cc-btn--danger" onClick={remove}>Delete</button>
+        <button className="cc-btn cc-btn--danger" onClick={remove}><Icon name="delete" size={15} />Delete</button>
       </div>
       <div className="cc-itemedit">
         <div className="cc-itemedit__media">
@@ -110,7 +111,7 @@ export function ItemEdit() {
             </div>
           )}
           <div>
-            <a className="cc-btn" href={api.itemArchiveUrl(item.id)} download>Download all as ZIP</a>
+            <a className="cc-btn" href={api.itemArchiveUrl(item.id)} download><Icon name="download" size={15} />Download all as ZIP</a>
           </div>
           <div className="cc-panel">
             <MetadataForm item={item} onSaved={setItem} />

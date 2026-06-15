@@ -153,8 +153,10 @@ button, input, textarea, select {
   display: flex; align-items: center; gap: 9px; white-space: nowrap;
 }
 .cc-logo .cc-mark {
-  width: 20px; height: 20px; border-radius: var(--radius-thumb);
-  background: var(--accent); display: inline-block; flex: none;
+  width: 20px; height: 20px; flex: none;
+}
+.cc-nav-link span {
+  display: inline-flex; align-items: center; gap: 8px;
 }
 .cc-nav-links { display: flex; align-items: center; gap: 2px; }
 .cc-nav-link {
@@ -197,6 +199,17 @@ button, input, textarea, select {
   font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em;
   text-transform: uppercase; color: var(--text-ter); margin: 0 0 10px;
 }
+
+/* ---- Icons (duotone: ink + accent) -------------------------------------- */
+.cc-ico { flex: none; }
+.cc-ico .cc-ico-ink { fill: none; stroke: var(--text); stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.cc-ico .cc-ico-acc { fill: var(--accent); stroke: none; }
+.cc-ico .cc-ico-surface { fill: var(--surface); }
+.cc-ico .cc-ico-knock { stroke: var(--surface); stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+.cc-btn--primary .cc-ico .cc-ico-acc,
+.cc-btn--danger:hover .cc-ico .cc-ico-acc { fill: var(--accent-contrast); }
+.cc-btn--primary .cc-ico .cc-ico-knock,
+.cc-btn--danger:hover .cc-ico .cc-ico-knock { stroke: var(--accent); }
 
 /* ---- Buttons ----------------------------------------------------------- */
 .cc-btn {
@@ -522,6 +535,9 @@ button, input, textarea, select {
   display: flex; align-items: center; gap: 10px; margin-bottom: var(--space-5);
   font-family: var(--font-head); font-weight: var(--head-weight); font-size: 22px; letter-spacing: var(--head-tracking);
 }
+.cc-login__logo .cc-mark {
+  width: 28px; height: 28px; flex: none;
+}
 
 /* ---- Upload dropzone --------------------------------------------------- */
 .cc-dropzone {
@@ -619,6 +635,17 @@ button, input, textarea, select {
 /* helpers */
 .cc-stack { display: flex; flex-direction: column; gap: var(--space-5); }
 .cc-row-tight { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
+
+/* filter/sort collapsible bar */
+.cc-filterbar { margin-bottom: var(--space-3); }
+.cc-filterbar__toggle { gap: 7px; }
+.cc-filterbar__chevron--open { transform: rotate(180deg); }
+.cc-filterbar__badge {
+  font-family: var(--font-mono); font-size: 11px; padding: 2px 7px;
+  border-radius: var(--radius-pill); background: var(--accent-wash); color: var(--accent);
+}
+.cc-filterbar__panel { margin-top: var(--space-2); }
+.cc-filterbar__panel .cc-select { width: auto; min-width: 160px; }
 .cc-divider { height: 1px; background: var(--border); border: 0; margin: var(--space-5) 0; }
 .cc-muted { color: var(--text-ter); }
 .cc-mono { font-family: var(--font-mono); }
