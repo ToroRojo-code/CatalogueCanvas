@@ -175,7 +175,19 @@ button, input, textarea, select {
 .cc-nav-spacer { flex: 1; }
 .cc-nav__foot { display: flex; align-items: center; gap: 8px; flex: none; }
 
-.cc-main { flex: 1; min-width: 0; }
+.cc-content { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.cc-main { flex: 1; }
+
+.cc-footer {
+  display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
+  gap: var(--space-4); row-gap: var(--space-2);
+  padding: var(--space-4) var(--pad-page);
+  border-top: 1px solid var(--border);
+  color: var(--text-ter); font-size: 12px;
+  text-align: center;
+}
+.cc-footer a { color: var(--text-ter); text-decoration: none; }
+.cc-footer a:hover { color: var(--text); text-decoration: underline; }
 
 /* ---- Page header ------------------------------------------------------- */
 .cc-page-header {
@@ -720,4 +732,5 @@ button, input, textarea, select {
   .cc-itemedit { grid-template-columns: 1fr; }
   .cc-itemedit__media { position: static; }
   .cc-stats { grid-template-columns: 1fr; }
+  .cc-footer { gap: var(--space-2); padding: var(--space-3) var(--pad-page); }
 }

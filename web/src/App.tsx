@@ -3,6 +3,7 @@ import { useAuth } from './api/auth'
 import { ACCENT_PRESETS, useAppearance } from './api/appearance'
 import { SelectionProvider } from './api/selection'
 import { Nav } from './components/Nav'
+import { Footer } from './components/Footer'
 import { Login } from './pages/Login'
 import { Dashboard } from './pages/Dashboard'
 import { ItemEdit } from './pages/ItemEdit'
@@ -26,7 +27,10 @@ function AdminLayout({ children }: { children: React.ReactNode }) {
     <ProtectedRoute>
       <div className="cc-shell">
         <Nav />
-        <main className="cc-main">{children}</main>
+        <div className="cc-content">
+          <main className="cc-main">{children}</main>
+          <Footer />
+        </div>
       </div>
     </ProtectedRoute>
   )
@@ -50,7 +54,7 @@ function App() {
     >
       <SelectionProvider>
         <Routes>
-          <Route path="/login" element={<Login />} />
+          <Route path="/login" element={<><Login /><Footer /></>} />
           <Route path="/p/:slug" element={<Deck />} />
           <Route path="/" element={<AdminLayout><Dashboard /></AdminLayout>} />
           <Route path="/items/:id" element={<AdminLayout><ItemEdit /></AdminLayout>} />
