@@ -1,5 +1,6 @@
 from __future__ import annotations
 import sqlite3
+from urllib.parse import urlparse
 
 from fastapi import Depends, HTTPException, Request
 from itsdangerous import BadSignature, URLSafeTimedSerializer
@@ -49,3 +50,10 @@ def require_admin(request: Request) -> None:
     token = request.cookies.get(SESSION_COOKIE)
     if not is_valid_session(token):
         raise HTTPException(status_code=401, detail="not authenticated")
+
+    if request.method in ("POST", "PUT", "PATCH", "DELETE"):
+        origin = request.headers.get("origin") or request.headers.get("referer")
+        if origin:
+            origin_host = urlparse(origin).netloc
+            if origin_host and origin_host != request.url.netloc:
+                raise HTTPException(status_code=403, detail="cross-origin request rejected")

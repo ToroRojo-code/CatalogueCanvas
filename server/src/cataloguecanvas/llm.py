@@ -1,18 +1,46 @@
 from __future__ import annotations
 import base64
+import ipaddress
 import json
 import re
+import socket
 import tomllib
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 import httpx
 
 PROMPT_TEMPLATE_PATH = Path(__file__).resolve().parent / "prompt.template.toml"
 
+# Cloud metadata endpoints (AWS/GCP/Azure/DigitalOcean) live in the link-local
+# range and are never legitimate LLM API targets, unlike localhost/LAN
+# addresses which self-hosted setups (Ollama, LM Studio) commonly use.
+_BLOCKED_NETWORKS = [
+    ipaddress.ip_network("169.254.0.0/16"),
+    ipaddress.ip_network("fd00:ec2::254/128"),
+]
+
 
 class LLMError(Exception):
     pass
+
+
+def _validate_api_url(api_url: str) -> None:
+    parsed = urlparse(api_url)
+    if parsed.scheme not in ("http", "https"):
+        raise LLMError("api_url must use http or https")
+    if not parsed.hostname:
+        raise LLMError("api_url is missing a host")
+    try:
+        infos = socket.getaddrinfo(parsed.hostname, None)
+    except socket.gaierror as exc:
+        raise LLMError(f"could not resolve api_url host: {exc}") from exc
+    for info in infos:
+        ip = ipaddress.ip_address(info[4][0])
+        for net in _BLOCKED_NETWORKS:
+            if ip in net:
+                raise LLMError("api_url resolves to a blocked address (link-local/metadata range)")
 
 
 def default_prompt_template() -> str:
@@ -65,6 +93,8 @@ def describe(
     The api_key, if provided, is used only for this request's Authorization
     header and is never persisted.
     """
+    _validate_api_url(api_url)
+
     try:
         prompt = _build_prompt(item_type, summary_focus, bullet_count, bullet_max_words, prompt_template)
     except (tomllib.TOMLDecodeError, KeyError) as exc:
@@ -91,7 +121,7 @@ def describe(
         headers["Authorization"] = f"Bearer {api_key}"
 
     try:
-        resp = httpx.post(api_url, json=payload, headers=headers, timeout=timeout)
+        resp = httpx.post(api_url, json=payload, headers=headers, timeout=timeout, follow_redirects=False)
         resp.raise_for_status()
         data = resp.json()
         content = data["choices"][0]["message"]["content"].strip()

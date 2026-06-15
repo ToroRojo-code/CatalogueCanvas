@@ -15,6 +15,7 @@ from PIL import Image
 from .convert import to_webp
 from .db import hash_exists, upsert_item, get_item
 from .ids import generate_item_id
+from .settings import settings
 
 # Priority order for selecting which image becomes the webp preview.
 PREVIEW_MIME_PRIORITY = ["image/png", "image/jpeg", "image/tiff", "image/svg+xml"]
@@ -90,6 +91,15 @@ def ingest_zip_bytes(
             n for n in zf.namelist()
             if not n.startswith("__MACOSX/") and not n.endswith("/")
         ]
+
+        total_size = 0
+        for name in members:
+            info = zf.getinfo(name)
+            if info.file_size > settings.max_zip_member_bytes:
+                raise ValueError(f"member {name!r} exceeds max size of {settings.max_zip_member_bytes} bytes")
+            total_size += info.file_size
+        if total_size > settings.max_zip_total_bytes:
+            raise ValueError(f"zip total uncompressed size exceeds {settings.max_zip_total_bytes} bytes")
 
         preview_choice, preview_candidates = _select_preview(members)
         if len(preview_candidates) > 1:

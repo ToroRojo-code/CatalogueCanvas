@@ -4,6 +4,8 @@ from pathlib import Path
 
 from PIL import Image
 
+Image.MAX_IMAGE_PIXELS = 128_000_000  # ~128MP cap, guards against decompression bombs
+
 
 def to_webp(image_bytes: bytes, mime_type: str, out_path: Path, scale: float = 2.0) -> Path:
     """Convert image bytes (svg, png, jpeg, or tiff) to a webp file at out_path."""

@@ -238,15 +238,21 @@ async def upload_item(
     if not file.filename or not file.filename.lower().endswith(".zip"):
         raise HTTPException(status_code=400, detail="only .zip files are supported")
 
-    data = await file.read()
+    data = await file.read(settings.max_upload_bytes + 1)
+    if len(data) > settings.max_upload_bytes:
+        raise HTTPException(status_code=413, detail=f"upload exceeds max size of {settings.max_upload_bytes} bytes")
+
     import_dt = datetime.now(timezone.utc).isoformat(timespec="seconds")
-    result = ingest_zip_bytes(
-        data,
-        file.filename,
-        conn,
-        settings.storage_dir,
-        import_dt=import_dt,
-    )
+    try:
+        result = ingest_zip_bytes(
+            data,
+            file.filename,
+            conn,
+            settings.storage_dir,
+            import_dt=import_dt,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=413, detail=str(exc)) from exc
     return {
         "item": _enrich(result.item) if result.item else None,
         "created": result.created,

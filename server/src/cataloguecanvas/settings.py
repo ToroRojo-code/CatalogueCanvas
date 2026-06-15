@@ -13,6 +13,10 @@ class Settings:
         self.site_title = os.environ.get("CC_SITE_TITLE", "My Catalogue")
         self.site_author = os.environ.get("CC_SITE_AUTHOR", "")
         self.static_dir = Path(os.environ.get("CC_STATIC_DIR", str(Path(__file__).resolve().parents[3] / "web" / "dist")))
+        self.cookie_secure = os.environ.get("CC_COOKIE_SECURE", "true").lower() not in ("0", "false", "no")
+        self.max_upload_bytes = int(os.environ.get("CC_MAX_UPLOAD_BYTES", str(1024 * 1024 * 1024)))
+        self.max_zip_member_bytes = int(os.environ.get("CC_MAX_ZIP_MEMBER_BYTES", str(500 * 1024 * 1024)))
+        self.max_zip_total_bytes = int(os.environ.get("CC_MAX_ZIP_TOTAL_BYTES", str(1024 * 1024 * 1024)))
 
     def ensure_dirs(self) -> None:
         self.data_dir.mkdir(parents=True, exist_ok=True)
