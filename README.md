@@ -51,8 +51,15 @@ For local development without Docker:
 
 ### With Docker (recommended)
 
+Generate the session secret key once (stored as a Docker Compose secret file, not an env var):
+
 ```bash
-CC_ADMIN_PASSWORD=mysecretpassword CC_SECRET_KEY=$(openssl rand -hex 32) docker compose up --build
+mkdir -p secrets
+openssl rand -hex 32 > secrets/cc_secret_key.txt
+```
+
+```bash
+CC_ADMIN_PASSWORD=mysecretpassword docker compose up --build
 ```
 
 Then open `http://localhost:8000` and log in with `CC_ADMIN_PASSWORD`.
@@ -86,7 +93,8 @@ Environment variables (set via `docker-compose.yml` or your shell):
 | Variable | Default | Description |
 |---|---|---|
 | `CC_ADMIN_PASSWORD` | _(empty)_ | Admin login password — required to log in |
-| `CC_SECRET_KEY` | `dev-secret-change-me` | Session signing key — set a random value in production |
+| `CC_SECRET_KEY` | `dev-secret-change-me` | Session signing key — set a random value in production (local dev only; in Docker use `CC_SECRET_KEY_FILE`) |
+| `CC_SECRET_KEY_FILE` | _(unset)_ | Path to a file containing the session signing key — takes precedence over `CC_SECRET_KEY` (used by Docker Compose secrets) |
 | `CC_SITE_TITLE` | `My Catalogue` | Title shown in the UI and public portfolios |
 | `CC_SITE_AUTHOR` | _(empty)_ | Author/owner name shown on public portfolios |
 | `CC_DATA_DIR` | `/data` | Base directory for the database and storage |
