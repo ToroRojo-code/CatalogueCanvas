@@ -10,8 +10,8 @@ summary = "a couple of sentences covering {summary_focus}"
 [instructions]
 task = "Analyze the provided {item_type} and describe it matching the output_schema above."
 constraints = [
-    "Provide exactly {bullet_count} bullet points, each starting with '-'.",
-    "Each bullet point must be under {bullet_max_words} words.",
-    "Before the bullet points, write a summary of a couple of sentences covering {summary_focus}.",
-    "Respond either as a JSON object with 'descriptions' and 'summary' keys, or as plain markdown text with the summary followed by the bullet list.",
+    "Provide exactly {bullet_count} bullet points, each under {bullet_max_words} words.",
+    "The summary must be a couple of sentences covering {summary_focus}.",
+    "Respond with ONLY a single JSON object with 'descriptions' (array of strings) and 'summary' (string) keys.",
+    "Do NOT include any reasoning, planning, preamble, explanation, or markdown code fences. Output the raw JSON object and nothing else.",
 ]

@@ -175,21 +175,56 @@ def describe(
     except (KeyError, IndexError, TypeError, AttributeError) as exc:
         raise LLMError(f"LLM request failed: unexpected choices shape: {_snippet(json.dumps(choices))}") from exc
 
+    content = _strip_reasoning(content)
+
     if content.startswith("```"):
         content = "\n".join(line for line in content.splitlines() if not line.startswith("```"))
 
-    start = content.find("{")
-    if start != -1:
-        try:
-            inner, _ = json.JSONDecoder().raw_decode(content, start)
-            return {
-                "descriptions": inner.get("descriptions", []),
-                "summary": inner.get("summary", ""),
-            }
-        except json.JSONDecodeError:
-            pass
+    inner = _extract_json_object(content)
+    if inner is not None and ("descriptions" in inner or "summary" in inner):
+        return {
+            "descriptions": inner.get("descriptions", []),
+            "summary": inner.get("summary", ""),
+        }
 
     return _parse_markdown_response(content)
+
+
+_THINK_RE = re.compile(r"<think>.*?</think>", re.DOTALL | re.IGNORECASE)
+
+
+def _strip_reasoning(content: str) -> str:
+    """Remove chain-of-thought emitted by 'thinking' models.
+
+    Handles explicit <think>...</think> blocks, and the common case where a
+    model leaves an unterminated <think> with the real answer after it.
+    """
+    content = _THINK_RE.sub("", content)
+    # Unterminated <think> (no closing tag): drop everything up to the last one.
+    lower = content.lower()
+    if "<think>" in lower:
+        content = content[lower.rfind("<think>") + len("<think>"):]
+    return content.strip()
+
+
+def _extract_json_object(content: str) -> dict[str, Any] | None:
+    """Return the last decodable top-level JSON object in the text, if any.
+
+    Scans every '{' and keeps the last one that parses, so reasoning prose
+    containing stray braces before the real JSON answer doesn't win.
+    """
+    decoder = json.JSONDecoder()
+    found: dict[str, Any] | None = None
+    idx = content.find("{")
+    while idx != -1:
+        try:
+            obj, _ = decoder.raw_decode(content, idx)
+            if isinstance(obj, dict):
+                found = obj
+        except json.JSONDecodeError:
+            pass
+        idx = content.find("{", idx + 1)
+    return found
 
 
 _BULLET_RE = re.compile(r"^\s*(?:[-*]|\d+[.)])\s+(.*)")
