@@ -2,14 +2,14 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from .auth import ensure_admin
-from .db import ensure_schema, get_connection, get_library
+from .auth import ensure_admin, require_session
+from .db import ensure_schema, get_connection, get_library, is_public_storage_path
 from .routers import auth, collections, items, libraries, portfolios, settings as settings_router, users
 from .settings import settings
 
@@ -85,8 +85,7 @@ def create_app() -> FastAPI:
     app.include_router(settings_router.router)
     app.include_router(users.router)
 
-    @app.get("/storage/{library_id}/{rel_path:path}")
-    def serve_storage_file(library_id: str, rel_path: str):
+    def _resolve_storage_file(library_id: str, rel_path: str) -> Path:
         conn = get_connection(settings.db_path)
         try:
             lib = get_library(conn, library_id)
@@ -100,7 +99,24 @@ def create_app() -> FastAPI:
             raise HTTPException(status_code=404, detail="not found")
         if not target.is_file():
             raise HTTPException(status_code=404, detail="not found")
-        return FileResponse(target)
+        return target
+
+    @app.get("/storage/{library_id}/{rel_path:path}")
+    def serve_storage_file(library_id: str, rel_path: str, _: str = Depends(require_session)):
+        return FileResponse(_resolve_storage_file(library_id, rel_path))
+
+    @app.get("/p-storage/{library_id}/{rel_path:path}")
+    def serve_public_storage_file(library_id: str, rel_path: str):
+        # Anonymous access, but only for files belonging to items published
+        # through a public portfolio. Everything else requires a session.
+        conn = get_connection(settings.db_path)
+        try:
+            allowed = is_public_storage_path(conn, library_id, rel_path)
+        finally:
+            conn.close()
+        if not allowed:
+            raise HTTPException(status_code=404, detail="not found")
+        return FileResponse(_resolve_storage_file(library_id, rel_path))
 
     if settings.static_dir.exists():
         app.mount("/assets", StaticFiles(directory=str(settings.static_dir / "assets")), name="spa-assets")

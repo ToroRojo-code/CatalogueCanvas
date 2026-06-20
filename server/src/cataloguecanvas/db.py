@@ -425,6 +425,53 @@ def delete_portfolio(conn: sqlite3.Connection, p_id: str) -> None:
     conn.commit()
 
 
+def _parse_json_list(raw: Any) -> list:
+    if not raw:
+        return []
+    if not isinstance(raw, str):
+        return raw if isinstance(raw, list) else []
+    try:
+        parsed = json.loads(raw)
+    except json.JSONDecodeError:
+        return []
+    return parsed if isinstance(parsed, list) else []
+
+
+def get_public_item_ids(conn: sqlite3.Connection) -> set[str]:
+    """Return the set of item IDs reachable through any public portfolio.
+
+    Used to authorize anonymous file serving on the public storage route so it
+    only exposes files belonging to items an operator has explicitly published.
+    """
+    rows = conn.execute("SELECT item_ids FROM portfolios WHERE is_public = 1").fetchall()
+    ids: set[str] = set()
+    for row in rows:
+        for item_id in _parse_json_list(row["item_ids"]):
+            if isinstance(item_id, str):
+                ids.add(item_id)
+    return ids
+
+
+def is_public_storage_path(conn: sqlite3.Connection, library_id: str, rel_path: str) -> bool:
+    """Whether (library_id, rel_path) is the preview file of an item that is
+    published through a public portfolio.
+
+    Only the webp preview is exposed anonymously; attachments stay session-gated.
+    """
+    public_ids = get_public_item_ids(conn)
+    if not public_ids:
+        return False
+    placeholders = ",".join("?" for _ in public_ids)
+    rows = conn.execute(
+        f"SELECT library_id, preview_path FROM items WHERE id IN ({placeholders})",
+        tuple(public_ids),
+    ).fetchall()
+    for row in rows:
+        if row["library_id"] == library_id and row["preview_path"] == rel_path:
+            return True
+    return False
+
+
 # --- admin ---
 
 def get_admin_hash(conn: sqlite3.Connection) -> Optional[str]:

@@ -72,7 +72,7 @@ def _json_field(value: Any) -> Any:
     return value if value is not None else []
 
 
-def _enrich(item: dict[str, Any]) -> dict[str, Any]:
+def _enrich(item: dict[str, Any], public: bool = False) -> dict[str, Any]:
     item = dict(item)
     item["tags"] = _json_field(item.get("tags"))
     item["raw_meta"] = _json_field(item.get("raw_meta")) or {}
@@ -80,9 +80,13 @@ def _enrich(item: dict[str, Any]) -> dict[str, Any]:
     item["other_files"] = other_files
 
     library_id = item.get("library_id")
+    # Public portfolio views are served to anonymous clients and only render the
+    # webp preview, so just the preview URL points at the public storage route.
+    # Attachment downloads stay on the session-gated route.
+    preview_base = "/p-storage" if public else "/storage"
 
     if item.get("preview_path"):
-        item["preview_url"] = f"/storage/{library_id}/{item['preview_path']}"
+        item["preview_url"] = f"{preview_base}/{library_id}/{item['preview_path']}"
     else:
         item["preview_url"] = None
 
