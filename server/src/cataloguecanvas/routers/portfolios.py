@@ -156,7 +156,7 @@ def get_public_portfolio(slug: str, conn: sqlite3.Connection = Depends(get_db)):
     for item_id in p["item_ids"]:
         item = get_item(conn, item_id)
         if item:
-            items.append(_enrich(item))
+            items.append(_enrich(item, public=True))
 
     return {
         "title": p["title"],
