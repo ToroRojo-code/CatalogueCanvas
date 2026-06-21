@@ -67,6 +67,14 @@ CC_ADMIN_PASSWORD=mysecretpassword docker compose up --build
 
 Then open `http://localhost:8000` and log in with `CC_ADMIN_PASSWORD`.
 
+To serve on a different host port, set `CC_PORT` (the container always listens on 8000 internally):
+
+```bash
+CC_ADMIN_PASSWORD=mysecretpassword CC_PORT=8081 docker compose up --build
+```
+
+This maps host port 8081 to the container, so the app is reachable at `http://localhost:8081`.
+
 On first boot the container generates a random session signing key at `/data/cc_secret_key.txt` and reuses it on subsequent starts — no manual setup needed. All data (the SQLite database, uploaded item assets, and the session key) is persisted in the `./data` directory mounted into the container at `/data`.
 
 ### Local development (without Docker)
@@ -96,6 +104,7 @@ Environment variables (set via `docker-compose.yml` or your shell):
 | Variable | Default | Description |
 |---|---|---|
 | `CC_ADMIN_PASSWORD` | _(empty)_ | Admin login password — required to log in |
+| `CC_PORT` | `8000` | Host port mapped to the container in `docker-compose.yml` (container always listens on 8000) |
 | `CC_SECRET_KEY` | `dev-secret-change-me` | Session signing key — set a random value for local dev. In Docker, the key is auto-generated and persisted at `<CC_DATA_DIR>/cc_secret_key.txt`, so this is not needed. |
 | `CC_SECRET_KEY_FILE` | _(unset)_ | Path to a file containing the session signing key — takes precedence over `CC_SECRET_KEY`. The Docker entrypoint sets this automatically. |
 | `CC_SITE_TITLE` | `My Catalogue` | Title shown in the UI and public portfolios |
