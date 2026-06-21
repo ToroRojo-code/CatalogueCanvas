@@ -6,7 +6,7 @@ services:
         CC_GIT_SHA: ${CC_GIT_SHA:-unknown}
         CC_BUILD_DATE: ${CC_BUILD_DATE:-unknown}
     ports:
-      - "8000:8000"
+      - "${CC_PORT:-8000}:8000"
     environment:
       # No default password: the app fails closed (no admin login) until this is
       # set, so an unconfigured deployment can't ship a known credential.
