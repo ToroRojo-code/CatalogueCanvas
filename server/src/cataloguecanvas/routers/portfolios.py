@@ -51,6 +51,8 @@ def _enrich_portfolio(p: dict[str, Any]) -> dict[str, Any]:
     p["item_ids"] = _json_field(p.get("item_ids"))
     p["is_public"] = bool(p.get("is_public"))
     p["style"] = _norm_style(p.get("style"))
+    p["watermark_enabled"] = bool(p.get("watermark_enabled"))
+    p["watermark_text"] = p.get("watermark_text") or ""
     return p
 
 
@@ -83,6 +85,8 @@ class PortfolioCreate(BaseModel):
     is_public: bool = False
     visibility: str = "admin"
     style: str = "ledger"
+    watermark_enabled: bool = False
+    watermark_text: str = ""
 
 
 @router.post("/api/portfolios")
@@ -103,6 +107,8 @@ def create_portfolio(body: PortfolioCreate, conn: sqlite3.Connection = Depends(g
         "is_public": int(body.is_public),
         "visibility": "readers" if body.visibility == "readers" else "admin",
         "style": _norm_style(body.style),
+        "watermark_enabled": int(body.watermark_enabled),
+        "watermark_text": body.watermark_text or "",
     })
     return _enrich_portfolio(get_portfolio(conn, p_id))
 
@@ -115,6 +121,8 @@ class PortfolioUpdate(BaseModel):
     is_public: Optional[bool] = None
     visibility: Optional[str] = None
     style: Optional[str] = None
+    watermark_enabled: Optional[bool] = None
+    watermark_text: Optional[str] = None
 
 
 @router.patch("/api/portfolios/{p_id}")
@@ -139,6 +147,14 @@ def update_portfolio(p_id: str, body: PortfolioUpdate, conn: sqlite3.Connection 
     else:
         updates["visibility"] = existing["visibility"]
     updates["style"] = _norm_style(body.style) if body.style is not None else _norm_style(existing["style"])
+    if body.watermark_enabled is not None:
+        updates["watermark_enabled"] = int(body.watermark_enabled)
+    else:
+        updates["watermark_enabled"] = existing["watermark_enabled"]
+    if body.watermark_text is not None:
+        updates["watermark_text"] = body.watermark_text
+    else:
+        updates["watermark_text"] = existing["watermark_text"] or ""
 
     upsert_portfolio(conn, updates)
     return _enrich_portfolio(get_portfolio(conn, p_id))

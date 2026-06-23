@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import * as api from '../api/client'
 import type { Item, Portfolio, PortfolioStyle } from '../api/client'
@@ -11,18 +11,56 @@ const STYLES: { value: PortfolioStyle; label: string }[] = [
   { value: 'riso', label: 'Riso' },
 ]
 
+type SaveState = 'idle' | 'saving' | 'saved'
+
 export function PortfolioEdit() {
   const { id } = useParams<{ id: string }>()
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null)
   const [items, setItems] = useState<Item[]>([])
-  const [saved, setSaved] = useState(false)
+  const [saveState, setSaveState] = useState<SaveState>('idle')
   const navigate = useNavigate()
+  const timer = useRef<ReturnType<typeof setTimeout>>(undefined)
+  const latest = useRef<Portfolio | null>(null)
 
   useEffect(() => {
     if (!id) return
-    api.getPortfolio(id).then(setPortfolio)
+    api.getPortfolio(id).then((p) => { latest.current = p; setPortfolio(p) })
     api.listItems().then(setItems)
   }, [id])
+
+  // Persist the current portfolio. Toggles/items flush now; text debounces.
+  const flush = async () => {
+    const p = latest.current
+    if (!p) return
+    setSaveState('saving')
+    const updated = await api.updatePortfolio(p.id, {
+      title: p.title,
+      description: p.description,
+      slug: p.slug,
+      item_ids: p.item_ids,
+      is_public: p.is_public,
+      style: p.style,
+      watermark_enabled: p.watermark_enabled,
+      watermark_text: p.watermark_text,
+    })
+    latest.current = updated
+    setSaveState('saved')
+  }
+
+  // Apply a change locally and schedule a save. `immediate` flushes at once
+  // (toggles, radios, item picks); text edits debounce to avoid a PATCH/keystroke.
+  const update = (patch: Partial<Portfolio>, immediate = false) => {
+    if (!portfolio) return
+    const next = { ...portfolio, ...patch }
+    latest.current = next
+    setPortfolio(next)
+    setSaveState('saving')
+    clearTimeout(timer.current)
+    if (immediate) flush()
+    else timer.current = setTimeout(flush, 500)
+  }
+
+  useEffect(() => () => clearTimeout(timer.current), [])
 
   if (!portfolio) return <div className="container"><div className="cc-empty"><p className="cc-empty__title">Loading...</p></div></div>
 
@@ -30,21 +68,7 @@ export function PortfolioEdit() {
     const item_ids = portfolio.item_ids.includes(itemId)
       ? portfolio.item_ids.filter((i) => i !== itemId)
       : [...portfolio.item_ids, itemId]
-    setPortfolio({ ...portfolio, item_ids })
-  }
-
-  const save = async () => {
-    setSaved(false)
-    const updated = await api.updatePortfolio(portfolio.id, {
-      title: portfolio.title,
-      description: portfolio.description,
-      slug: portfolio.slug,
-      item_ids: portfolio.item_ids,
-      is_public: portfolio.is_public,
-      style: portfolio.style,
-    })
-    setPortfolio(updated)
-    setSaved(true)
+    update({ item_ids }, true)
   }
 
   const remove = async () => {
@@ -68,15 +92,15 @@ export function PortfolioEdit() {
       <div className="cc-panel cc-stack">
         <div className="cc-field">
           <label className="cc-label" htmlFor="title">Title</label>
-          <input id="title" className="cc-input" value={portfolio.title} onChange={(e) => setPortfolio({ ...portfolio, title: e.target.value })} />
+          <input id="title" className="cc-input" value={portfolio.title} onChange={(e) => update({ title: e.target.value })} />
         </div>
         <div className="cc-field">
           <label className="cc-label" htmlFor="slug">Slug</label>
-          <input id="slug" className="cc-input" value={portfolio.slug} onChange={(e) => setPortfolio({ ...portfolio, slug: e.target.value })} />
+          <input id="slug" className="cc-input" value={portfolio.slug} onChange={(e) => update({ slug: e.target.value })} />
         </div>
         <div className="cc-field">
           <label className="cc-label" htmlFor="description">Description (markdown)</label>
-          <textarea id="description" className="cc-textarea" rows={4} value={portfolio.description} onChange={(e) => setPortfolio({ ...portfolio, description: e.target.value })} />
+          <textarea id="description" className="cc-textarea" rows={4} value={portfolio.description} onChange={(e) => update({ description: e.target.value })} />
         </div>
         <div className="cc-field">
           <label className="cc-label">Theme</label>
@@ -87,7 +111,7 @@ export function PortfolioEdit() {
                   type="radio"
                   name="style"
                   checked={portfolio.style === s.value}
-                  onChange={() => setPortfolio({ ...portfolio, style: s.value })}
+                  onChange={() => update({ style: s.value }, true)}
                 />
                 <span className="cc-check__box" />
                 {s.label}
@@ -95,12 +119,35 @@ export function PortfolioEdit() {
             ))}
           </div>
         </div>
+        <div className="cc-field">
+          <label className="cc-check">
+            <input
+              type="checkbox"
+              checked={portfolio.watermark_enabled}
+              onChange={(e) => update({ watermark_enabled: e.target.checked }, true)}
+            />
+            <span className="cc-check__box" />
+            Watermark exported images
+          </label>
+          {portfolio.watermark_enabled && (
+            <>
+              <input
+                className="cc-input"
+                placeholder="© Your Name"
+                value={portfolio.watermark_text}
+                onChange={(e) => update({ watermark_text: e.target.value })}
+                style={{ marginTop: 'var(--space-2)' }}
+              />
+              <p className="cc-hint">Burned into the images in the exported zip only. The live deck is unaffected.</p>
+            </>
+          )}
+        </div>
         <label className="cc-check">
           <input
             id="public"
             type="checkbox"
             checked={portfolio.is_public}
-            onChange={(e) => setPortfolio({ ...portfolio, is_public: e.target.checked })}
+            onChange={(e) => update({ is_public: e.target.checked }, true)}
           />
           <span className="cc-check__box" />
           Public
@@ -111,7 +158,7 @@ export function PortfolioEdit() {
             <div className="cc-sharebox">{shareUrl}</div>
             <div className="cc-row-tight">
               <a className="cc-btn" href={`/p/${portfolio.slug}`} target="_blank" rel="noreferrer">Preview deck</a>
-              <button className="cc-btn" type="button" onClick={() => api.exportPortfolioStatic(portfolio.id)}>
+              <button className="cc-btn" type="button" onClick={async () => { clearTimeout(timer.current); await flush(); api.exportPortfolioStatic(portfolio.id) }}>
                 <Icon name="download" size={15} />Export static site (.zip)
               </button>
             </div>
@@ -147,8 +194,8 @@ export function PortfolioEdit() {
       </div>
 
       <div className="cc-row-tight" style={{ marginTop: 'var(--space-5)' }}>
-        <button className="cc-btn cc-btn--primary" onClick={save}><Icon name="save" size={15} />Save</button>
-        {saved && <span className="cc-saved">Saved.</span>}
+        {saveState === 'saving' && <span className="cc-saved">Saving…</span>}
+        {saveState === 'saved' && <span className="cc-saved">All changes saved.</span>}
       </div>
     </div>
   )

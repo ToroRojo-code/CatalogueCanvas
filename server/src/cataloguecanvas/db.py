@@ -58,6 +58,8 @@ CREATE TABLE IF NOT EXISTS portfolios (
     is_public   INTEGER NOT NULL DEFAULT 0,
     visibility  TEXT NOT NULL DEFAULT 'admin',
     style       TEXT NOT NULL DEFAULT 'ledger',
+    watermark_enabled INTEGER NOT NULL DEFAULT 0,
+    watermark_text    TEXT NOT NULL DEFAULT '',
     created_at  TEXT DEFAULT (datetime('now'))
 );
 
@@ -133,6 +135,10 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
         conn.execute("ALTER TABLE portfolios ADD COLUMN visibility TEXT NOT NULL DEFAULT 'admin'")
     if "style" not in portfolio_cols:
         conn.execute("ALTER TABLE portfolios ADD COLUMN style TEXT NOT NULL DEFAULT 'ledger'")
+    if "watermark_enabled" not in portfolio_cols:
+        conn.execute("ALTER TABLE portfolios ADD COLUMN watermark_enabled INTEGER NOT NULL DEFAULT 0")
+    if "watermark_text" not in portfolio_cols:
+        conn.execute("ALTER TABLE portfolios ADD COLUMN watermark_text TEXT NOT NULL DEFAULT ''")
 
     conn.execute("""
         INSERT OR IGNORE INTO item_collections (item_id, collection_id)
