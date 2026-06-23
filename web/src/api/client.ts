@@ -47,6 +47,8 @@ export interface Portfolio {
   item_ids: string[]
   is_public: boolean
   style: PortfolioStyle
+  watermark_enabled: boolean
+  watermark_text: string
   created_at: string
 }
 
@@ -240,10 +242,10 @@ export const listPortfolios = () => request<Portfolio[]>('/api/portfolios')
 
 export const getPortfolio = (id: string) => request<Portfolio>(`/api/portfolios/${id}`)
 
-export const createPortfolio = (data: { title: string; description?: string; slug?: string; item_ids?: string[]; is_public?: boolean; style?: PortfolioStyle }) =>
+export const createPortfolio = (data: { title: string; description?: string; slug?: string; item_ids?: string[]; is_public?: boolean; style?: PortfolioStyle; watermark_enabled?: boolean; watermark_text?: string }) =>
   request<Portfolio>('/api/portfolios', { method: 'POST', body: JSON.stringify(data) })
 
-export const updatePortfolio = (id: string, fields: Partial<Pick<Portfolio, 'title' | 'description' | 'slug' | 'item_ids' | 'is_public' | 'style'>>) =>
+export const updatePortfolio = (id: string, fields: Partial<Pick<Portfolio, 'title' | 'description' | 'slug' | 'item_ids' | 'is_public' | 'style' | 'watermark_enabled' | 'watermark_text'>>) =>
   request<Portfolio>(`/api/portfolios/${id}`, { method: 'PATCH', body: JSON.stringify(fields) })
 
 export const deletePortfolio = (id: string) => request<{ ok: boolean }>(`/api/portfolios/${id}`, { method: 'DELETE' })

@@ -243,11 +243,18 @@ def build_static_site(
 
     body = _render_html(style, title, slug, desc_html, items, asset_map)
 
+    wm_text = portfolio.get("watermark_text") or ""
+    wm_on = bool(portfolio.get("watermark_enabled")) and bool(wm_text.strip())
+
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
         zf.writestr("index.html", body)
         zf.writestr("README.txt", README)
         for src, rel in asset_map.values():
-            zf.write(src, rel)
+            if wm_on:
+                from .convert import watermark_webp
+                zf.writestr(rel, watermark_webp(src.read_bytes(), wm_text))
+            else:
+                zf.write(src, rel)
 
 
 def _render_html(
