@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Settings } from './Settings'
 import type { AppSettings } from '../api/client'
@@ -107,8 +107,10 @@ describe('Settings', () => {
     render(<Settings />)
     await waitFor(() => expect(screen.getByText('Settings/Admin')).toBeInTheDocument())
 
-    const saveButtons = screen.getAllByText('Save')
-    await userEvent.click(saveButtons[1])
+    // Scope to the "LLM defaults" section so we click the right Save button
+    // rather than relying on a brittle positional index.
+    const llmSection = screen.getByText('LLM defaults').closest('section') as HTMLElement
+    await userEvent.click(within(llmSection).getByRole('button', { name: 'Save' }))
     await waitFor(() => expect(mocked.updateSettings).toHaveBeenCalled())
   })
 
