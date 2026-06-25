@@ -28,7 +28,7 @@ export function ItemEdit() {
   }, [isAdmin])
 
   useEffect(() => {
-    void api.listItems().then((items) => setItemIds(items.map((i) => i.id)))
+    void api.listItems().then((items) => { setItemIds(items.map((i) => i.id)) })
   }, [])
 
   const currentIndex = item ? itemIds.indexOf(item.id) : -1
@@ -39,11 +39,11 @@ export function ItemEdit() {
     const onKeyDown = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement
       if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable) return
-      if (e.key === 'ArrowLeft' && prevId) void navigate(`/items/${prevId}`)
-      else if (e.key === 'ArrowRight' && nextId) void navigate(`/items/${nextId}`)
+      if (e.key === 'ArrowLeft' && prevId) { void navigate(`/items/${prevId}`) }
+      else if (e.key === 'ArrowRight' && nextId) { void navigate(`/items/${nextId}`) }
     }
     window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
+    return () => { window.removeEventListener('keydown', onKeyDown) }
   }, [prevId, nextId, navigate])
 
   if (!item) return <div className="container"><div className="cc-empty"><p className="cc-empty__title">Loading...</p></div></div>
