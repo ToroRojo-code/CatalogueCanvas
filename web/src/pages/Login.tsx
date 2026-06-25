@@ -44,7 +44,7 @@ export function Login() {
               type="text"
               autoComplete="username"
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={(e) => { setUsername(e.target.value) }}
               autoFocus
             />
           </div>
@@ -57,7 +57,7 @@ export function Login() {
             type="password"
             autoComplete="current-password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => { setPassword(e.target.value) }}
             autoFocus={!multiUser}
           />
         </div>
