@@ -119,12 +119,17 @@ done
 wait
 
 echo
+exit_code=0
 if [[ -s "$FAILED" ]]; then
   echo "Some files failed:"
   cat "$FAILED"
+  exit_code=1
 fi
 
 # Integration: a single separate process merges every individual report.
 # Decoupled — you can run it alone anytime: node src/test/coverage-merge.mjs
 echo "Integrating per-file reports..."
-node src/test/coverage-merge.mjs "$TMP"
+node src/test/coverage-merge.mjs "$TMP" || exit_code=1
+
+# Signal failure so CI doesn't report success when tests or the merge failed.
+exit "$exit_code"

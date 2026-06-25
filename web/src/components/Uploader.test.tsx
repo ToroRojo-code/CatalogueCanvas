@@ -57,7 +57,7 @@ describe('Uploader', () => {
     render(<Uploader onUploaded={onUploaded} />)
 
     const file = new File(['zip content'], 'test.zip', { type: 'application/zip' })
-    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement
+    const fileInput = screen.getByTestId('upload-input') as HTMLInputElement
     await userEvent.upload(fileInput, file)
     await waitFor(() => expect(mocked.uploadItem).toHaveBeenCalledWith(file, undefined))
     expect(onUploaded).toHaveBeenCalled()
@@ -69,7 +69,7 @@ describe('Uploader', () => {
     render(<Uploader onUploaded={onUploaded} />)
 
     const file = new File(['content'], 'test.txt', { type: 'text/plain' })
-    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement
+    const fileInput = screen.getByTestId('upload-input') as HTMLInputElement
     await userEvent.upload(fileInput, file)
     expect(mocked.uploadItem).not.toHaveBeenCalled()
   })

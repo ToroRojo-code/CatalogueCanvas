@@ -16,10 +16,14 @@ import libCoverage from 'istanbul-lib-coverage';
 import libReport from 'istanbul-lib-report';
 import reports from 'istanbul-reports';
 
-// Local dev/CI helper only — `tmp` is a developer-supplied reports directory,
-// not untrusted input. Semgrep's non-literal-path checks are false positives here.
-const tmp = process.argv[2] || 'src/test/.coverage-tmp';
-// nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal
+// Resolve the reports dir and confirm it stays within the project root, so a
+// stray CLI argument can't be used to read files elsewhere (path traversal).
+const root = process.cwd();
+const tmp = path.resolve(root, process.argv[2] || 'src/test/.coverage-tmp');
+if (tmp !== root && !tmp.startsWith(root + path.sep)) {
+  console.error(`Reports dir must be inside the project root: ${tmp}`);
+  process.exit(1);
+}
 if (!fs.existsSync(tmp)) {
   console.error(`Reports dir not found: ${tmp}`);
   process.exit(1);
@@ -27,14 +31,16 @@ if (!fs.existsSync(tmp)) {
 
 const map = libCoverage.createCoverageMap({});
 let files = 0;
-// nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal
 for (const dir of fs.readdirSync(tmp)) {
-  // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal
   const f = path.join(tmp, dir, 'coverage-final.json');
-  // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal
   if (!fs.existsSync(f)) continue;
-  map.merge(JSON.parse(fs.readFileSync(f, 'utf8')));
-  files++;
+  // Skip a malformed/corrupt report rather than aborting the whole merge.
+  try {
+    map.merge(JSON.parse(fs.readFileSync(f, 'utf8')));
+    files++;
+  } catch (err) {
+    console.warn(`Skipping unreadable coverage report ${f}: ${err.message}`);
+  }
 }
 if (!files) {
   console.error(`No coverage-final.json reports found under ${tmp}`);
