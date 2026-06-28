@@ -100,7 +100,7 @@ export function Dashboard() {
         <button
           type="button"
           className="cc-btn cc-btn--sm cc-btn--ghost cc-filterbar__toggle"
-          onClick={() => setFiltersOpen((o) => !o)}
+          onClick={() => { setFiltersOpen((o) => !o) }}
           aria-expanded={filtersOpen}
         >
           <Icon name="filter" size={14} />

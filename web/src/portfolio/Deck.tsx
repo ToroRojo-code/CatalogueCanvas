@@ -87,7 +87,7 @@ export function Deck() {
           </div>
           <div className="cc-deck__kindex" onMouseLeave={() => { setHover(null) }}>
             {items.map((item, i) => (
-              <a className="cc-deck__krow" href={`#work-${item.id}`} key={item.id} onMouseEnter={() => setHover(item)}>
+              <a className="cc-deck__krow" href={`#work-${item.id}`} key={item.id} onMouseEnter={() => { setHover(item) }}>
                 <span className="cc-deck__krow-num">{String(i + 1).padStart(2, '0')}</span>
                 <span className="cc-deck__krow-title">{item.title}</span>
                 <span className="cc-deck__krow-meta cc-mono">{item.tags[0] || ''}</span>
