@@ -78,7 +78,7 @@ export function PortfolioEdit() {
   const remove = async () => {
     if (!confirm('Delete this portfolio?')) return
     await api.deletePortfolio(portfolio.id)
-    void navigate('/portfolios')
+    navigate('/portfolios')
   }
 
   const shareUrl = `${window.location.origin}/p/${portfolio.slug}`

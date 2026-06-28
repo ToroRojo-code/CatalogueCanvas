@@ -17,7 +17,7 @@ export function Login() {
     setBusy(true)
     try {
       await login(password, multiUser ? username : undefined)
-      void navigate('/')
+      navigate('/')
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'login failed')
     } finally {

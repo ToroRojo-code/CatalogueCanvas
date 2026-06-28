@@ -39,8 +39,8 @@ export function ItemEdit() {
     const onKeyDown = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement
       if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable) return
-      if (e.key === 'ArrowLeft' && prevId) { void navigate(`/items/${prevId}`) }
-      else if (e.key === 'ArrowRight' && nextId) { void navigate(`/items/${nextId}`) }
+      if (e.key === 'ArrowLeft' && prevId) { navigate(`/items/${prevId}`) }
+      else if (e.key === 'ArrowRight' && nextId) { navigate(`/items/${nextId}`) }
     }
     window.addEventListener('keydown', onKeyDown)
     return () => { window.removeEventListener('keydown', onKeyDown) }
@@ -59,7 +59,7 @@ export function ItemEdit() {
   const remove = async () => {
     if (!confirm(`Delete item ${item.id}? This cannot be undone.`)) return
     await api.deleteItem(item.id)
-    void navigate('/')
+    navigate('/')
   }
 
   const toggleFavorite = async () => {
