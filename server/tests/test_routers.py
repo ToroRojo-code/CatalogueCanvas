@@ -122,8 +122,6 @@ def test_storage_nonexistent_library_404(admin):
 
 def test_storage_relative_to_blocks_traversal(tmp_path):
     """relative_to() rejects resolved paths outside the library root."""
-    from pathlib import Path
-
     lib_root = (tmp_path / "mylib").resolve()
     lib_root.mkdir()
     (lib_root / "safe.txt").write_text("ok")
