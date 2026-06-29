@@ -36,7 +36,7 @@ export function Portfolios() {
       </div>
       {isAdmin && (
         <div className="cc-createbar">
-          <input className="cc-input" placeholder="New portfolio title" value={title} onChange={(e) => setTitle(e.target.value)} />
+          <input className="cc-input" placeholder="New portfolio title" value={title} onChange={(e) => { setTitle(e.target.value) }} />
           <button className="cc-btn cc-btn--primary" onClick={() => void create()}><Icon name="create" size={15} />Create</button>
         </div>
       )}

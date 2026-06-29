@@ -55,7 +55,7 @@ export function MetadataForm({ item, onSaved, readOnly = false }: { item: Item; 
       </div>
       <div className="cc-field">
         <label className="cc-label" htmlFor="tags">Tags (comma separated)</label>
-        <input id="tags" className="cc-input" value={tags} onChange={(e) => setTags(e.target.value)} disabled={readOnly} />
+        <input id="tags" className="cc-input" value={tags} onChange={(e) => { setTags(e.target.value) }} disabled={readOnly} />
         {item.tags.length > 0 ? (
           <div className="cc-card__tags cc-form__tags">
             {item.tags.map((t) => <span className="cc-tag" key={t}>{t}</span>)}
