@@ -1,5 +1,4 @@
 from __future__ import annotations
-import os
 from pathlib import Path
 
 from fastapi import Depends, FastAPI, HTTPException, Request
@@ -101,7 +100,9 @@ def create_app() -> FastAPI:
         if unresolved.is_symlink() or any(p.is_symlink() for p in unresolved.parents if str(p).startswith(str(lib_root))):
             raise HTTPException(status_code=404, detail="not found")
         target = unresolved.resolve()
-        if target != lib_root and not str(target).startswith(str(lib_root) + os.sep):
+        try:
+            target.relative_to(lib_root)
+        except ValueError:
             raise HTTPException(status_code=404, detail="not found")
         if not target.is_file():
             raise HTTPException(status_code=404, detail="not found")
