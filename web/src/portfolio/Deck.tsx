@@ -11,7 +11,7 @@ const CAPABILITIES = [
 ]
 
 export function Deck() {
-  const { slug } = useParams<{ slug: string }>()
+  const { slug, token } = useParams<{ slug: string; token?: string }>()
   const [portfolio, setPortfolio] = useState<PublicPortfolio | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [hover, setHover] = useState<Item | null>(null)
@@ -22,10 +22,10 @@ export function Deck() {
 
   useEffect(() => {
     if (!slug) return
-    api.getPublicPortfolio(slug)
+    api.getPublicPortfolio(slug, token)
       .then(setPortfolio)
       .catch(() => { setError('Portfolio not found.') })
-  }, [slug])
+  }, [slug, token])
 
   // Cursor-following thumbnail tracks the pointer (kinetic deck only).
   useEffect(() => {

@@ -9,8 +9,8 @@ from pathlib import Path
 from typing import Any, Optional
 
 from starlette.background import BackgroundTask
-from fastapi import APIRouter, Depends, HTTPException
-from fastapi.responses import FileResponse
+from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 
 from ..auth import require_admin, require_session
@@ -23,12 +23,15 @@ from ..db import (
     get_portfolio_by_slug,
     upsert_portfolio,
 )
-from ..ids import generate_portfolio_slug
+from ..ids import generate_portfolio_slug, generate_share_token
+from ..settings import settings
 from ..static_export import build_static_site
 from .auth import get_db
 from .items import _enrich
 
 router = APIRouter(tags=["portfolios"])
+
+SHARE_COOKIE_MAX_AGE = 60 * 60 * 24 * 30  # 30 days
 
 PORTFOLIO_STYLES = {"ledger", "kinetic", "brutalist", "riso"}
 
@@ -53,6 +56,7 @@ def _enrich_portfolio(p: dict[str, Any]) -> dict[str, Any]:
     p["style"] = _norm_style(p.get("style"))
     p["watermark_enabled"] = bool(p.get("watermark_enabled"))
     p["watermark_text"] = p.get("watermark_text") or ""
+    p["share_token"] = p.get("share_token") or ""
     return p
 
 
@@ -183,6 +187,27 @@ def update_portfolio_items(p_id: str, body: PortfolioItemsUpdate, conn: sqlite3.
     return _enrich_portfolio(get_portfolio(conn, p_id))
 
 
+@router.post("/api/portfolios/{p_id}/share-token")
+def mint_share_token(p_id: str, conn: sqlite3.Connection = Depends(get_db), _: None = Depends(require_admin)):
+    """Mint (or regenerate) a share token, gating public access behind it."""
+    existing = get_portfolio(conn, p_id)
+    if not existing:
+        raise HTTPException(status_code=404, detail="portfolio not found")
+    token = generate_share_token()
+    upsert_portfolio(conn, {**existing, "share_token": token})
+    return {"share_token": token}
+
+
+@router.delete("/api/portfolios/{p_id}/share-token")
+def clear_share_token(p_id: str, conn: sqlite3.Connection = Depends(get_db), _: None = Depends(require_admin)):
+    """Remove the share token, reverting to ungated public access."""
+    existing = get_portfolio(conn, p_id)
+    if not existing:
+        raise HTTPException(status_code=404, detail="portfolio not found")
+    upsert_portfolio(conn, {**existing, "share_token": ""})
+    return {"ok": True}
+
+
 class ExportOptions(BaseModel):
     quality: int = 85  # webp quality, clamped 40..95
     max_edge: Optional[int] = None  # longest-edge cap in px; None = original
@@ -239,22 +264,56 @@ def delete_portfolio_endpoint(p_id: str, conn: sqlite3.Connection = Depends(get_
 # --- Public endpoint ---
 
 @router.get("/api/p/{slug}")
-def get_public_portfolio(slug: str, conn: sqlite3.Connection = Depends(get_db)):
+@router.get("/api/p/{slug}/{token}")
+def get_public_portfolio(
+    slug: str,
+    request: Request,
+    token: Optional[str] = None,
+    conn: sqlite3.Connection = Depends(get_db),
+):
     p = get_portfolio_by_slug(conn, slug)
     if not p or not p.get("is_public"):
         raise HTTPException(status_code=404, detail="portfolio not found")
 
     p = _enrich_portfolio(p)
+
+    # When a share token is set, the portfolio is gated: a request must carry
+    # the token (in the URL) or a previously-set share cookie. A miss returns
+    # 404 so a gated portfolio is indistinguishable from a nonexistent one.
+    # The cookie is keyed by the portfolio's server-generated id (always a safe
+    # hex string), never the user-supplied slug, to avoid header injection.
+    cookie_name = f"cc_share_{p['id']}"
+    required = p["share_token"].strip()
+    if required:
+        cookie = request.cookies.get(cookie_name)
+        if token != required and cookie != required:
+            raise HTTPException(status_code=404, detail="portfolio not found")
+
     items = []
     for item_id in p["item_ids"]:
         item = get_item(conn, item_id)
         if item:
             items.append(_enrich(item, public=True))
 
-    return {
+    response = JSONResponse({
         "title": p["title"],
         "description": p["description"],
         "slug": p["slug"],
         "style": p["style"],
         "items": items,
-    }
+    })
+
+    # Remember a valid token via cookie so the recipient can revisit /p/<slug>
+    # without re-pasting it. Scoped to this portfolio's API path.
+    if required and token == required:
+        response.set_cookie(
+            cookie_name,
+            required,
+            max_age=SHARE_COOKIE_MAX_AGE,
+            httponly=True,
+            samesite="strict",
+            secure=settings.cookie_secure,
+            path="/api/p",
+        )
+
+    return response

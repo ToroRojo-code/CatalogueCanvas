@@ -38,11 +38,12 @@ function makePortfolio(over: Partial<PublicPortfolio> = {}): PublicPortfolio {
   }
 }
 
-function renderDeck() {
+function renderDeck(entry = '/p/my-deck') {
   return render(
-    <MemoryRouter initialEntries={['/p/my-deck']}>
+    <MemoryRouter initialEntries={[entry]}>
       <Routes>
         <Route path="/p/:slug" element={<Deck />} />
+        <Route path="/p/:slug/:token" element={<Deck />} />
       </Routes>
     </MemoryRouter>
   )
@@ -53,6 +54,13 @@ describe('Deck', () => {
     mocked.getPublicPortfolio.mockRejectedValue(new Error('not found'))
     renderDeck()
     await waitFor(() => expect(screen.getByText('Portfolio not found.')).toBeInTheDocument())
+  })
+
+  it('passes the token from a tokened route to the API', async () => {
+    mocked.getPublicPortfolio.mockResolvedValue(makePortfolio())
+    renderDeck('/p/my-deck/secret-token')
+    await waitFor(() => expect(screen.getByText('My Deck')).toBeInTheDocument())
+    expect(mocked.getPublicPortfolio).toHaveBeenCalledWith('my-deck', 'secret-token')
   })
 
   it('renders portfolio cover with title', async () => {

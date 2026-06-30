@@ -11,6 +11,8 @@ vi.mock('../api/client', () => ({
   updatePortfolio: vi.fn(),
   deletePortfolio: vi.fn(),
   exportPortfolioStatic: vi.fn(),
+  mintShareToken: vi.fn(),
+  clearShareToken: vi.fn(),
 }))
 
 vi.mock('../components/Icon', () => ({
@@ -26,7 +28,7 @@ function makePortfolio(over: Partial<Portfolio> = {}): Portfolio {
   return {
     id: 'p-1', title: 'My Portfolio', slug: 'my-portfolio',
     is_public: false, item_ids: [], style: 'ledger',
-    description: '', watermark_enabled: false, watermark_text: '', created_at: '',
+    description: '', watermark_enabled: false, watermark_text: '', share_token: '', created_at: '',
     ...over,
   }
 }
@@ -95,6 +97,51 @@ describe('PortfolioEdit', () => {
     mocked.updatePortfolio.mockResolvedValue(makePortfolio({ is_public: true }))
     renderPage()
     await waitFor(() => expect(screen.getByText(/\/p\/my-portfolio/)).toBeInTheDocument())
+  })
+
+  it('shows tokened share link and Require token button', async () => {
+    mocked.getPortfolio.mockResolvedValue(makePortfolio({ is_public: true, share_token: 'abc123' }))
+    mocked.listItems.mockResolvedValue([])
+    mocked.updatePortfolio.mockResolvedValue(makePortfolio({ is_public: true, share_token: 'abc123' }))
+    renderPage()
+    await waitFor(() => expect(screen.getByText(/\/p\/my-portfolio\/abc123/)).toBeInTheDocument())
+    expect(screen.getByText('Regenerate token')).toBeInTheDocument()
+    expect(screen.getByText('Disable token')).toBeInTheDocument()
+  })
+
+  it('copies the share link to the clipboard', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined)
+    Object.assign(navigator, { clipboard: { writeText } })
+    mocked.getPortfolio.mockResolvedValue(makePortfolio({ is_public: true, share_token: 'abc123' }))
+    mocked.listItems.mockResolvedValue([])
+    mocked.updatePortfolio.mockResolvedValue(makePortfolio({ is_public: true, share_token: 'abc123' }))
+    renderPage()
+    await waitFor(() => expect(screen.getByText('Copy')).toBeInTheDocument())
+    await userEvent.click(screen.getByText('Copy'))
+    expect(writeText).toHaveBeenCalledWith('http://localhost:3000/p/my-portfolio/abc123')
+    await waitFor(() => expect(screen.getByText('Copied')).toBeInTheDocument())
+  })
+
+  it('mints a token when Require token is clicked', async () => {
+    mocked.getPortfolio.mockResolvedValue(makePortfolio({ is_public: true }))
+    mocked.listItems.mockResolvedValue([])
+    mocked.updatePortfolio.mockResolvedValue(makePortfolio({ is_public: true }))
+    mocked.mintShareToken.mockResolvedValue({ share_token: 'newtoken' })
+    renderPage()
+    await waitFor(() => expect(screen.getByText('Require token')).toBeInTheDocument())
+    await userEvent.click(screen.getByText('Require token'))
+    await waitFor(() => expect(mocked.mintShareToken).toHaveBeenCalledWith('p-1'))
+  })
+
+  it('clears the token when Disable token is clicked', async () => {
+    mocked.getPortfolio.mockResolvedValue(makePortfolio({ is_public: true, share_token: 'abc123' }))
+    mocked.listItems.mockResolvedValue([])
+    mocked.updatePortfolio.mockResolvedValue(makePortfolio({ is_public: true, share_token: 'abc123' }))
+    mocked.clearShareToken.mockResolvedValue({ ok: true })
+    renderPage()
+    await waitFor(() => expect(screen.getByText('Disable token')).toBeInTheDocument())
+    await userEvent.click(screen.getByText('Disable token'))
+    await waitFor(() => expect(mocked.clearShareToken).toHaveBeenCalledWith('p-1'))
   })
 
   it('deletes portfolio after confirmation', async () => {

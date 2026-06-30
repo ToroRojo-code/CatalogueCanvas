@@ -68,6 +68,7 @@ function App() {
         <Routes>
           <Route path="/login" element={<><Login /><Footer /></>} />
           <Route path="/p/:slug" element={<Deck />} />
+          <Route path="/p/:slug/:token" element={<Deck />} />
           <Route path="/" element={<AdminLayout><Dashboard /></AdminLayout>} />
           <Route path="/items/:id" element={<AdminLayout><ItemEdit /></AdminLayout>} />
           <Route path="/collections" element={<AdminLayout><Collections /></AdminLayout>} />
