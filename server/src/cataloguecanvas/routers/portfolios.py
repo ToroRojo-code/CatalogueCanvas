@@ -280,9 +280,12 @@ def get_public_portfolio(
     # When a share token is set, the portfolio is gated: a request must carry
     # the token (in the URL) or a previously-set share cookie. A miss returns
     # 404 so a gated portfolio is indistinguishable from a nonexistent one.
+    # The cookie is keyed by the portfolio's server-generated id (always a safe
+    # hex string), never the user-supplied slug, to avoid header injection.
+    cookie_name = f"cc_share_{p['id']}"
     required = p["share_token"].strip()
     if required:
-        cookie = request.cookies.get(f"cc_share_{slug}")
+        cookie = request.cookies.get(cookie_name)
         if token != required and cookie != required:
             raise HTTPException(status_code=404, detail="portfolio not found")
 
@@ -304,13 +307,13 @@ def get_public_portfolio(
     # without re-pasting it. Scoped to this portfolio's API path.
     if required and token == required:
         response.set_cookie(
-            f"cc_share_{slug}",
+            cookie_name,
             required,
             max_age=SHARE_COOKIE_MAX_AGE,
             httponly=True,
             samesite="strict",
             secure=settings.cookie_secure,
-            path=f"/api/p/{slug}",
+            path="/api/p",
         )
 
     return response

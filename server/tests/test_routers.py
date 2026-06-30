@@ -153,7 +153,8 @@ def test_share_token_gates_and_cookie_remembers(admin):
     # Correct token -> 200 and a share cookie is set.
     ok = anon.get(f"/api/p/{slug}/{token}")
     assert ok.status_code == 200
-    assert f"cc_share_{slug}" in anon.cookies
+    # Cookie is keyed by the portfolio id (a safe hex string), not the slug.
+    assert f"cc_share_{p['id']}" in anon.cookies
 
     # The cookie now lets the bare slug through on the same client.
     assert anon.get(f"/api/p/{slug}").status_code == 200
