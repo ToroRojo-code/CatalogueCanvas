@@ -115,7 +115,8 @@ _ITEM_COLUMNS = frozenset({
 })
 _PORTFOLIO_COLUMNS = frozenset({
     "id", "slug", "title", "description", "item_ids", "is_public",
-    "visibility", "style", "watermark_enabled", "watermark_text", "created_at",
+    "visibility", "style", "watermark_enabled", "watermark_text", "share_token",
+    "created_at",
 })
 
 
@@ -164,6 +165,8 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
         conn.execute("ALTER TABLE portfolios ADD COLUMN watermark_enabled INTEGER NOT NULL DEFAULT 0")
     if "watermark_text" not in portfolio_cols:
         conn.execute("ALTER TABLE portfolios ADD COLUMN watermark_text TEXT NOT NULL DEFAULT ''")
+    if "share_token" not in portfolio_cols:
+        conn.execute("ALTER TABLE portfolios ADD COLUMN share_token TEXT")
 
     conn.execute("""
         INSERT OR IGNORE INTO item_collections (item_id, collection_id)

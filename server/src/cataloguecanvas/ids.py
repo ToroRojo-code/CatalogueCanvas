@@ -1,6 +1,7 @@
 from __future__ import annotations
 import random
 import re
+import secrets
 import sqlite3
 from pathlib import Path
 
@@ -42,3 +43,8 @@ def generate_portfolio_slug(exists) -> str:
         if not exists(candidate):
             return candidate
     raise RuntimeError(f"could not generate a unique slug after {MAX_ATTEMPTS} attempts")
+
+
+def generate_share_token() -> str:
+    """Generate a random, URL-safe share token (~22 chars, 128 bits)."""
+    return secrets.token_urlsafe(16)

@@ -49,6 +49,7 @@ export interface Portfolio {
   style: PortfolioStyle
   watermark_enabled: boolean
   watermark_text: string
+  share_token: string
   created_at: string
 }
 
@@ -258,7 +259,14 @@ export const exportPortfolioStatic = (
   opts?: { quality?: number; max_edge?: number | null },
 ) => downloadPost(`/api/portfolios/${id}/export`, opts ?? undefined, 'portfolio-site.zip')
 
-export const getPublicPortfolio = (slug: string) => request<PublicPortfolio>(`/api/p/${slug}`)
+export const mintShareToken = (id: string) =>
+  request<{ share_token: string }>(`/api/portfolios/${id}/share-token`, { method: 'POST' })
+
+export const clearShareToken = (id: string) =>
+  request<{ ok: boolean }>(`/api/portfolios/${id}/share-token`, { method: 'DELETE' })
+
+export const getPublicPortfolio = (slug: string, token?: string) =>
+  request<PublicPortfolio>(token ? `/api/p/${slug}/${token}` : `/api/p/${slug}`)
 
 // --- settings ---
 export const getSettings = () => request<AppSettings>('/api/settings')

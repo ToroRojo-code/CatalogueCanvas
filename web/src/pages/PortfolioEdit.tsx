@@ -22,6 +22,7 @@ export function PortfolioEdit() {
   const [exportQuality, setExportQuality] = useState(85)
   const [exportResize, setExportResize] = useState(false)
   const [exportMaxEdge, setExportMaxEdge] = useState(1280)
+  const [copied, setCopied] = useState(false)
   const navigate = useNavigate()
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined)
   const latest = useRef<Portfolio | null>(null)
@@ -81,7 +82,25 @@ export function PortfolioEdit() {
     void navigate('/portfolios')
   }
 
-  const shareUrl = `${window.location.origin}/p/${portfolio.slug}`
+  const requireToken = async () => {
+    const { share_token } = await api.mintShareToken(portfolio.id)
+    update({ share_token }, true)
+  }
+
+  const disableToken = async () => {
+    await api.clearShareToken(portfolio.id)
+    update({ share_token: '' }, true)
+  }
+
+  const shareUrl = portfolio.share_token
+    ? `${window.location.origin}/p/${portfolio.slug}/${portfolio.share_token}`
+    : `${window.location.origin}/p/${portfolio.slug}`
+
+  const copyShareUrl = async () => {
+    await navigator.clipboard.writeText(shareUrl)
+    setCopied(true)
+    setTimeout(() => { setCopied(false) }, 1500)
+  }
 
   return (
     <div className="container">
@@ -159,7 +178,27 @@ export function PortfolioEdit() {
         {portfolio.is_public && (
           <div className="cc-field">
             <label className="cc-label">Share link</label>
-            <div className="cc-sharebox">{shareUrl}</div>
+            <div className="cc-sharebox">
+              <span className="cc-sharebox__url">{shareUrl}</span>
+              <button className="cc-btn cc-btn--sm cc-sharebox__copy" type="button" onClick={() => void copyShareUrl()}>
+                <Icon name="copy" size={14} />{copied ? 'Copied' : 'Copy'}
+              </button>
+            </div>
+            <div className="cc-row-tight" style={{ marginTop: 'var(--space-2)' }}>
+              {portfolio.share_token ? (
+                <>
+                  <button className="cc-btn cc-btn--sm" type="button" onClick={() => void requireToken()}><Icon name="view" size={14} />Regenerate token</button>
+                  <button className="cc-btn cc-btn--sm" type="button" onClick={() => void disableToken()}>Disable token</button>
+                </>
+              ) : (
+                <button className="cc-btn cc-btn--sm" type="button" onClick={() => void requireToken()}>Require token</button>
+              )}
+            </div>
+            <p className="cc-hint">
+              {portfolio.share_token
+                ? 'Token-gated: the link 404s without the token. Visiting once stores a cookie so the recipient need not re-paste it. Static exports are unlisted and not token-protected.'
+                : 'Anyone with the link can view. Require a token to gate access behind a secret in the URL.'}
+            </p>
             <div className="cc-field">
               <label className="cc-label" htmlFor="export-quality">Image quality<span className="cc-count">({exportQuality})</span></label>
               <input

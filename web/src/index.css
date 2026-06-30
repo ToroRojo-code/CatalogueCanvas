@@ -704,6 +704,8 @@ button, input, textarea, select {
   background: var(--surface-2); border: 1px solid var(--border);
   border-radius: var(--radius-input); padding: 10px 12px; word-break: break-all;
 }
+.cc-sharebox__url { flex: 1 1 auto; min-width: 0; }
+.cc-sharebox__copy { flex: 0 0 auto; }
 
 /* item picker grid (portfolio edit) */
 .cc-picker { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px,1fr)); gap: var(--space-3); }

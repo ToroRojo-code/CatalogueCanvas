@@ -5,6 +5,11 @@ All notable changes to CatalogueCanvas are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project has not yet tagged a release; entries are grouped by date.
 
+## 2026-06-30
+
+### Added
+- Token-secured shared portfolio links: opt-in per-portfolio share token gates the public deck so a link without the token returns a 404; a valid token sets a cookie so the recipient can revisit without re-pasting it. Admins can require, regenerate, disable, and copy the link from the portfolio editor. Live server only — static exports remain unlisted.
+
 ## 2026-06-20
 
 ### Added
